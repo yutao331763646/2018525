@@ -1,0 +1,236 @@
+body,
+select,
+img,
+input,
+ul,
+li,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+dl,
+dt,
+dd {
+    margin: 0;
+    padding: 0;
+    border: none;
+    list-style: none;
+    border-style: none;
+}
+
+.bottomnav {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+}
+
+.content {
+    padding: 0 0 0 20px;
+}
+
+.name {
+    height: 47px;
+    padding: 0 20 0 0px;
+}
+
+.disease_name,
+.f_nob,
+.proposl {
+    height: 47px;
+}
+
+.add_af {
+    justify-content: center;
+    /* margin-top: 20px; */
+    height: 47px;
+    /* margin-bottom: 5px; */
+}
+
+.wheel ul {
+    padding: 0;
+}
+
+.proposal2 {
+    height: 47px;
+    padding: 0 20px 0 0;
+    justify-content: space-between;
+}
+
+.topappbar {
+    position: fixed;
+    top: 0;
+}
+
+#app>div {
+    /* padding-top: 56px; */
+    padding-bottom: 56px;
+}
+
+.actives {
+    border: 2px solid red !important;
+    border-radius: 4px;
+}
+
+.tuijya {
+    padding: 0 20px;
+}
+
+.drugslist {
+    flex-wrap: wrap;
+}
+
+.mudrawer {
+    width: 100%;
+    background: #f7f7f7
+}
+
+.seach_disease {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.seach_disease input {
+    display: block;
+    outline: none;
+    height: 100%;
+    width: 100%;
+    font-size: 15px;
+    padding-right: 20px;
+}
+
+.seach_disease ul {
+    /* width: 100%; */
+    padding: 0 20px;
+    min-width: 93px;
+    max-height: 350px;
+    overflow-y: auto;
+    background: #fff;
+    -webkit-overflow-scrolling: touch;
+    position: absolute;
+    top: 47px;
+    z-index: 99999999999999;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.117647), 0 1px 4px rgba(0, 0, 0, 0.117647);
+    border-radius: 2px;
+}
+
+.seach_disease ul li {
+    height: 35px;
+    line-height: 35px;
+    font-size: 17px;
+    padding-left: 5px;
+}
+
+
+/* 
+.editdrug {
+    width: 100%;
+    background: #f7f7f7;
+   
+}
+
+.editdrug .lists {
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.editdrug .list {
+    width: 2.9rem;
+    height: 30px;
+    background: #fff;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.editdrug .list>div {
+    display: flex;
+    align-items: center;
+}
+
+.editdrug .list .custom_cuisorw {
+    display: flex;
+    align-items: center;
+}
+
+.custom_cuisor {
+    display: block;
+    width: 1px;
+    height: 15px;
+    background: red;
+    margin-right: 2px;
+    animation: customcuisor 0.75s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes customcuisor {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.hint_input {
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+    color: #ccc
+}
+
+
+
+
+.editdrug>.mu-flex-row {
+    position: fixed;
+    bottom: 0;
+    height: 2.8rem;
+    background: #eee;
+    flex-direction: column;
+    justify-content: center
+}
+
+.editdrug>.mu-flex-row>.mu-flex-row:nth-of-type(1) {
+    padding: 0 10px;
+    justify-content: space-between
+}
+
+.editdrug>.mu-flex-row>.mu-flex-row:nth-of-type(2) {
+    margin: 8px 0;
+    padding: 0 20px;
+    justify-content: space-between
+}
+
+.editdrug>.mu-flex-row>.mu-flex-row:nth-of-type(3) {
+    padding: 0 10px;
+    justify-content: space-between
+}
+
+.numOkl {
+    background: #ccc;
+    color: #fff;
+    font-size: 22px
+}
+
+.numOklActive {
+    background: red
+}
+
+.mu-toast {
+    height: 39px;
+    width: 40%;
+    position: fixed;
+    left: 50%;
+    bottom: 50px;
+    margin-left: -20%;
+    line-height: 39px;
+    background-color: rgba(0, 0, 0, .6);
+} */
