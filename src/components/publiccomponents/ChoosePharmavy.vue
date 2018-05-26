@@ -18,20 +18,17 @@
                 <mu-flat-button slot="left" label="取消" color="white" @click="closepopup('bottom')" />
                 <mu-flat-button slot="right" label="保存" color="white" @click="storePhar('bottom')" />
             </mu-appbar>
-            <mu-flexbox orient="horizontal" class="dis_type">
-                <mu-raised-button label="代煎代送" />
-                <mu-raised-button label="自取" />
-                <mu-raised-button label="代煎自取" />
+            <mu-flexbox orient="horizontal" wrap="wrap" class="dis_type">
+                <mu-raised-button  v-for="(item,index ) in servers" :key="index"  :label="item.name" @click="clickType(item.type)"/>
             </mu-flexbox>
-            <!-- <mu-list>
-                <pharmacylist v-for="(item,index) in pharmavyDatas.select" :text="item" :key="index" :class="{'actives':index ==checkindex }" @click.native="choosePhar(index)"></pharmacylist>
-            </mu-list> -->
+            <mu-list>
+                <pharmacylist v-for="(item,index) in pharmavyDatas.select[num]" :text="item" :key="index" :class="{'actives':index ==checkindex }" @click.native="choosePhar(index)"></pharmacylist>
+            </mu-list> 
         </mu-popup>
         <!-- 配送方式 -->
         <mu-flexbox orient="horizontal" class="dis_type">
-            <mu-raised-button label="代煎代送" />
-            <mu-raised-button label="自取" />
-            <mu-raised-button label="代煎自取" />
+            <mu-raised-button v-for="(item,index) in this.$store.getters.serviceArrDefault" :key="index" :label="item" />
+ 
         </mu-flexbox>
 
     </div>
@@ -46,28 +43,34 @@ export default {
 
     data() {
         return {
-            // datas2: [
-            //     "三坊七巷", "四方气息", "五项气息"
-            // ],
-            // datas2:this.$store.state.pharmavyData.select,
             bottomPopup: false,
-            // checkText:{},
-            // pharmavyDatas:null,
-            // checkText: {
-            //     name: '中心药房',
-            //     address: '中心药房的'
-            // },//选择的药房
             checkindex: 0,// 初始化第一个栏块高亮
-            // pharmavyDatasEng:{
-                
-            // }
+            server:{
+                1:'代煎代送',
+                2:'自煎代送',
+                3:'代煎自取',
+                4:'自取',
+                5:'送货上门',
+                6:'货到付款',
+                '-1':'门店结算'
+            },
+            servers:[],//选中的服务类型
+            // yiList:this.pharmavyDatas.select,
+            num:1,
         }
     },
     methods: {
         openpopup(position) {
             this[position + 'Popup'] = true;
-            console.log(this.$store.state.pharmavyData)
-            console.log(this.pharmavyDatas)
+            this.servers=[];
+            let keys = Object.keys(this.pharmavyDatas.select);
+            // console.log(obj);
+            keys.forEach((item,index)=>{
+                this.servers.push({name:this.server[item],type:item})
+            })
+            // console.log(this.$store.state.pharmavyData.default.serviceArr)
+            console.log(this.$store.getters.serviceArrDefault)
+
         },
         closepopup(position) {
             this[position + 'Popup'] = false
@@ -75,39 +78,17 @@ export default {
         storePhar(position) {
             this[position + 'Popup'] = false
         },
-        // choosePhar(index) {
-        //     this.checkindex = index;
-        //     console.log(this.datas2[index])
-        //     this.checkText = this.datas2[index]
-        // },
-        // getDatas() {
-        //     let _this = this;
-        //     let url = 'http://w.i.htyy.com/doctor_ajax.php?do=getSupByTYPE&type=1'
-        //     axios
-        //         .get(url)
-        //         .then(function (res) {
-        //             console.log(res.data.data)
-        //             if (res.data.code == 1) {
-        //                 _this.pharmavyDatasEng=res.data.data
-        //                 // commit('PHARMAVT_DATA', res.data.data)
-        //             } else {
-        //                 // _this.showToast(res.data.msg);
-        //             }
-        //         })
-        //         .catch(function (err) {
-        //             console.log(err);
-        //         });
-        // }
+        clickType(type){
+            console.log(type)
+            this.num=type;
+        },
+        choosePhar(index){
+            console.log(index)
+        }
+
     },
     mounted() {
-        // this.getDatas()
-        // console.log(this.pharmavyDatasEng.default.name)
-        // console.log(this.pharmavyDatas)
-        // console.log(this.pharmavyDatas.default)
-        // this.checkText=this.$store.state.pharmavyData.default
-        // console.log(this.$store.state.pharmavyData)
-        // console.log(this.pharmavyDatas)
-        console.log(this.pharmavyDatas.default==true)
+        // this.yiList=
     },
     components: {
         pharmacylist,
@@ -116,9 +97,6 @@ export default {
     },
     computed: {
         // 全局共享的数据
-        // pharmavyDatas() {
-        //     return this.$store.state.pharmavyData
-        // }
         ...mapState({
             pharmavyDatas: state => state.pharmavyData,
 
@@ -137,6 +115,9 @@ export default {
 </style>
 
 <style scoped lang="less">
+.ChoosePharmavy{
+    width:100%;
+}
 .pharmacylist {
   margin: 0 auto;
   margin-top: 10px;

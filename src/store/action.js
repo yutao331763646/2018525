@@ -21,10 +21,11 @@ export default {
     pharmavyData({
         commit
     }, data) {
-        let url = 'http://w.i.htyy.com/doctor_ajax.php?do=getSupByTYPE&type=1'
+        let url = 'http://w.i.htyy.com/doctor_ajax.php?do=getSupByTYPE&type='+data
         axios
             .get(url)
             .then(function (res) {
+                console.log(res.data)
                 if (res.data.code == 1) {
                     commit('PHARMAVT_DATA', res.data.data)
                 } else {

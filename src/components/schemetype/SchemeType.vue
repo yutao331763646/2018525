@@ -88,24 +88,11 @@ export default {
     },
     methods: {
         chooseType(index, type) {
-            console.log(index, type)
+            console.log(type)
             this.typeindex = index;
             let _this = this;
-            let url = 'http://w.i.htyy.com/doctor_ajax.php?do=getSupByTYPE&type=' + type
-            axios.get(url)
-                .then(function (res) {
-                    console.log(res)
-                    // if (res.data.code == 1) {
-                    //     _this.open = !_this.open;
-                    //     _this.pricelist = res.data.data;
-                    //     console.log(_this.pricelist)
-                    // } else {
-                    //     _this.showToast(res.data.msg);
-                    // }
-                })
-                .catch(function (err) {
-                    console.log(err);
-                });
+             this.pharmavyData(type)
+
 
         },
         goProposal() {
@@ -143,19 +130,6 @@ export default {
         },
         initGetData() {
             let _this = this;
-            //     url = 'http://w.i.htyy.com/doctor_ajax.php?do=getSupByTYPE&type=1'
-            // axios.get(url)
-            //     .then(function (res) {
-            //         console.log(res.data.data)
-            //         if (res.data.code == 1) {
-            //                _this.pharmavyData(res.data.data)
-            //         } else {
-            //             _this.showToast(res.data.msg);
-            //         }
-            //     })
-            //     .catch(function (err) {
-            //         console.log(err);
-            //     });
             axios.get('http://w.i.htyy.com/doctor_ajax.php?do=gainTypes')
                 .then(function (res) {
                     // console.log(res)
@@ -177,7 +151,7 @@ export default {
     },
     mounted() {
         this.initGetData();
-        this.pharmavyData()
+        this.pharmavyData(1)
     },
     components: {
         ChoosePharmavy

@@ -181,10 +181,14 @@
 }
 
 .dis_type {
-    justify-content: space-around;
-    margin: 10px 0
+    /* justify-content: space-around; */
+    margin: 10px 0;
+    padding: 0 10px;
 }
-
+.dis_type .mu-raised-button{
+    margin-right: 5px;
+    margin-bottom: 10px
+}
 .dis_type .mu-raised-button-label {
     padding-right: 16px
 }
