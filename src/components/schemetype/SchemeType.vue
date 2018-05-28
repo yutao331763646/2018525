@@ -31,15 +31,18 @@
         </mu-drawer>
         <mu-divider/>
         <mu-flexbox wrap="wrap" :gutter=0 class="type">
+            <!-- 药品类型 -->
             <mu-flexbox-item v-for="(item,index) in typedata" :key="index" @click.native="chooseType(index,item.type)">
                 <mu-raised-button :label="item.name" :secondary="index==typeindex" />
             </mu-flexbox-item>
         </mu-flexbox>
         <mu-flexbox class="tuijya">
+            <!-- 推荐药房及弹出层 -->
             <ChoosePharmavy />
         </mu-flexbox>
         <mu-flexbox class="nextstep" @click.native="goProposal">
-            <mu-raised-button label="下一步" secondary/>
+            <!-- 跳到开方页面 -->
+            <mu-raised-button label="下一步" secondary :disabled="disableds" />
         </mu-flexbox>
         <mu-toast v-if="toast" :message="toastMsg" @close="hideToast" />
     </div>
@@ -48,7 +51,7 @@
 <script>
 import ChoosePharmavy from '../publiccomponents/ChoosePharmavy.vue'
 import axios from "axios";
-// import { mapState } from 'vuex'
+import { mapState } from 'vuex'
 
 import { mapActions } from 'vuex'
 export default {
@@ -91,12 +94,12 @@ export default {
             console.log(type)
             this.typeindex = index;
             let _this = this;
-             this.pharmavyData(type)
+            this.pharmavyData(type);
 
 
         },
         goProposal() {
-            // this.$router.push({ path: '/propsal' })
+            this.$router.push({ path: '/propsal' })
             console.log(this.$store.state.pharmavyData)
         },
         toggle() {
@@ -136,7 +139,7 @@ export default {
                     if (res.data.code == 1) {
                         // console.log(res.data.data)
                         _this.typedata = res.data.data
-                     
+
                     } else {
                         _this.showToast('服务器出错');
                     }
@@ -158,9 +161,10 @@ export default {
     },
     computed: {
         // 全局共享的数据
-        // ...mapState({
-        // 	pharmavyData: state => state.pharmavyData,
-        // })
+        ...mapState({
+            // 	pharmavyData: state => state.pharmavyData,
+            disableds: state => state.disableds,
+        })
     }
 }
 </script>

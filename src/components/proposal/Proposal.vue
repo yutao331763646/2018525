@@ -387,7 +387,6 @@ export default {
 
 
 		//  病症的模糊匹配
-
 		handleInputdiseasecs() {
 			this.openDiseaseListcs = true
 			//arrCh    保存indexof查找返回的索引（中文）
@@ -411,7 +410,7 @@ export default {
 			}
 		},
 
-		// @method 点击下拉的病症名
+		//  点击下拉的病症名
 
 		chooseDiseasecs(val) {
 			console.log(val)

@@ -4,3 +4,6 @@ export const IS_TRUE = 'IS_TRUE'
 export const SHOWLOADING =  'SHOWLOADING';  
 export const HIDELOADING =  'HIDELOADING';  
 export const PHARMAVT_DATA =  'PHARMAVT_DATA';
+export const TOAST =  'TOAST';
+export const DISABLEDS =  'DISABLEDS';
+export const TUISHOW =  'TUISHOW';

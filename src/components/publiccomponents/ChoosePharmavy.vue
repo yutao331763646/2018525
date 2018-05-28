@@ -1,16 +1,16 @@
 <template>
     <div class="ChoosePharmavy">
         <!-- 推荐药房的弹出 -->
-        <mu-flexbox class="disease_name proposal " orient="horizontal">
+        <mu-flexbox class="disease_name proposal " orient="horizontal" v-if="tuishow">
             <mu-content-block>推荐药房</mu-content-block>
             <mu-raised-button class="demo-raised-button" label="推荐其他药房" @click="openpopup('bottom')" />
         </mu-flexbox>
-        <!-- <pharmacylist :text="pharmavyDatas.default"></pharmacylist> -->
-        <div class="pharmacylist" >
+        <!--非弹出层 的默认选中药房 -->
+        <div class="pharmacylist" v-if="tuishow">
             <img src="../../assets/erweima.png" alt="">
             <div>
-                <span>{{pharmavyDatas.default.name}}</span>
-                <span>{{pharmavyDatas.default.address}}</span>
+                <span>{{defaults.name}}</span>
+                <span>{{defaults.address}}</span>
             </div>
         </div>
         <mu-popup position="bottom" popupClass="recommended_pharmacy" :open="bottomPopup" @close="closepopup('bottom')">
@@ -19,24 +19,25 @@
                 <mu-flat-button slot="right" label="保存" color="white" @click="storePhar('bottom')" />
             </mu-appbar>
             <mu-flexbox orient="horizontal" wrap="wrap" class="dis_type">
-                <mu-raised-button  v-for="(item,index ) in servers" :key="index"  :label="item.name" @click="clickType(item.type)"/>
+                <!-- 弹出层的配送方式 -->
+                <mu-raised-button v-for="(item,index ) in servers" :key="index" :label="item.name" @click="clickType(index,item.type)" :secondary="index==typeindex2" />
             </mu-flexbox>
             <mu-list>
-                <pharmacylist v-for="(item,index) in pharmavyDatas.select[num]" :text="item" :key="index" :class="{'actives':index ==checkindex }" @click.native="choosePhar(index)"></pharmacylist>
-            </mu-list> 
+                <!-- 弹出层的药房 -->
+                <pharmacylist v-for="(item,index) in pharmavyDatas.select[num]" :text="item" :key="index" :class="{'actives':index ==checkindex }" @click.native="choosePhar(index,item)"></pharmacylist>
+            </mu-list>
         </mu-popup>
-        <!-- 配送方式 -->
-        <mu-flexbox orient="horizontal" class="dis_type">
-            <mu-raised-button v-for="(item,index) in this.$store.getters.serviceArrDefault" :key="index" :label="item" />
- 
+        <!-- 非弹出层的默认配送方式 -->
+        <mu-flexbox orient="horizontal" class="dis_type" v-if="tuishow">
+            <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item" :secondary="index==typeindex" @click.native="chooseType(index)" />
         </mu-flexbox>
-
+        <mu-toast v-if="toast" message="当前用药类型没有推荐药房" />
     </div>
 </template>
 
 <script>
 import pharmacylist from './PharmacyList.vue'
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import axios from "axios";
 export default {
     name: 'ChoosePharmavy',
@@ -44,51 +45,86 @@ export default {
     data() {
         return {
             bottomPopup: false,
-            checkindex: 0,// 初始化第一个栏块高亮
-            server:{
-                1:'代煎代送',
-                2:'自煎代送',
-                3:'代煎自取',
-                4:'自取',
-                5:'送货上门',
-                6:'货到付款',
-                '-1':'门店结算'
+            checkindex: 50,// 初始化第一个栏块高亮
+            server: {
+                1: '代煎代送',
+                2: '自煎代送',
+                3: '代煎自取',
+                4: '自取',
+                5: '送货上门',
+                6: '货到付款',
+                '-1': '门店结算'
             },
-            servers:[],//选中的服务类型
-            // yiList:this.pharmavyDatas.select,
-            num:1,
+            servers: [],//选中的服务类型
+            num: 1,
+            typeindex: 0,
+            typeindex2: 0,
+            defaults: this.defaulte,
         }
     },
     methods: {
         openpopup(position) {
             this[position + 'Popup'] = true;
-            this.servers=[];
+            this.servers = [];
             let keys = Object.keys(this.pharmavyDatas.select);
-            // console.log(obj);
-            keys.forEach((item,index)=>{
-                this.servers.push({name:this.server[item],type:item})
-            })
+            this.num = keys[0];//打开推荐其他药房时，默认选中第一个服务类型及当前类型下的供应商
+            // console.log(keys);
+            if (keys) {
+                keys.forEach((item, index) => {
+                    this.servers.push({ name: this.server[item], type: item })
+                })
+            } else {
+                // this.showToast()
+                // console.log("无数据")
+            }
             // console.log(this.$store.state.pharmavyData.default.serviceArr)
-            console.log(this.$store.getters.serviceArrDefault)
-
         },
+        // 取消选择其他药房
         closepopup(position) {
             this[position + 'Popup'] = false
+            this.defaults = this.pharmavyDatas.default
         },
+        //保存选择的药房
         storePhar(position) {
             this[position + 'Popup'] = false
+            console.log(this.defaults)
+
         },
-        clickType(type){
-            console.log(type)
-            this.num=type;
+        clickType(index, type) {
+            this.num = type;
+            this.typeindex2 = index;
+
         },
-        choosePhar(index){
-            console.log(index)
-        }
+        choosePhar(index, item) {
+            // console.log(index, item)
+            this.defaults = item
+            this.checkindex = index
+            console.log(this.defaults, item)
+        },
+        chooseType(index) {
+            this.typeindex = index
+        },
+
+
 
     },
+    created() {
+
+    },
+    beforeMount() {
+        this.defaults = this.defaulte;
+        console.log("beforeMount")
+        console.log(this.defaults,this.defaulte)
+    },
     mounted() {
-        // this.yiList=
+
+    },
+    beforeUpdate() {
+        // console.log(this.defaults, this.defaulte)
+    },
+    updated() {
+        console.log("updated")
+        console.log(this.defaults)
     },
     components: {
         pharmacylist,
@@ -97,10 +133,33 @@ export default {
     },
     computed: {
         // 全局共享的数据
+        defaulte() {
+            return this.pharmavyDatas.default
+        },
         ...mapState({
             pharmavyDatas: state => state.pharmavyData,
+            toast: state => state.toast,
+            tuishow: state => state.tuishow,
 
-        })
+        }),
+        serviceArrDefault() {
+            let server = {
+                1: '代煎代送',
+                2: '自煎代送',
+                3: '代煎自取',
+                4: '自取',
+                5: '送货上门',
+                6: '货到付款'
+            };
+            let arr = [],
+                serviceArr = this.defaults.serviceArr;
+            if (serviceArr) {
+                serviceArr.forEach((item, index) => {
+                    arr.push(server[item])
+                });
+            }
+            return arr;
+        }
     }
 
 }
@@ -115,8 +174,8 @@ export default {
 </style>
 
 <style scoped lang="less">
-.ChoosePharmavy{
-    width:100%;
+.ChoosePharmavy {
+  width: 100%;
 }
 .pharmacylist {
   margin: 0 auto;
