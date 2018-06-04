@@ -7,3 +7,5 @@ export const PHARMAVT_DATA =  'PHARMAVT_DATA';
 export const TOAST =  'TOAST';
 export const DISABLEDS =  'DISABLEDS';
 export const TUISHOW =  'TUISHOW';
+export const CHANGE_DEFAULTS =  'CHANGE_DEFAULTS';
+export const TYPE_INDEX =  'TYPE_INDEX';

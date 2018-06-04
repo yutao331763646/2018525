@@ -106,7 +106,7 @@ export default {
 
             let _this = this;
             axios.get('http://w.i.htyy.com/doctor_ajax.php?do=getUserOrderInfo&uid=1447329')
-                .then(function (res) {
+                .then((res) => {
                     console.log(res)
                     if (res.data.code == 1) {
                         _this.open = !_this.open;
@@ -116,7 +116,7 @@ export default {
                         _this.showToast(res.data.msg);
                     }
                 })
-                .catch(function (err) {
+                .catch((err) => {
                     console.log(err);
                 });
 
@@ -134,7 +134,7 @@ export default {
         initGetData() {
             let _this = this;
             axios.get('http://w.i.htyy.com/doctor_ajax.php?do=gainTypes')
-                .then(function (res) {
+                .then((res) => {
                     // console.log(res)
                     if (res.data.code == 1) {
                         // console.log(res.data.data)
@@ -144,7 +144,7 @@ export default {
                         _this.showToast('服务器出错');
                     }
                 })
-                .catch(function (err) {
+                .catch((err) => {
                     console.log(err);
                 });
         },

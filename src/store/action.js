@@ -7,7 +7,9 @@ import {
     PHARMAVT_DATA,
     TOAST,
     DISABLEDS,
-    TUISHOW
+    TUISHOW,
+    CHANGE_DEFAULTS,
+    TYPE_INDEX
 } from './mutation-types.js'
 import axios from "axios";
 export default {
@@ -24,12 +26,12 @@ export default {
     pharmavyData({
         commit
     }, data) {
-        let url = 'http://w.i.htyy.com/doctor_ajax.php?do=getSupByTYPE&type=' + data
+        let url = '?do=getSupByTYPE&type=' + data
         axios
             .get(url)
-            .then(function (res) {
-                console.log(res.data)
+            .then((res) => {
                 if (res.data.code == 1) {
+                    console.log(res)
                     commit('PHARMAVT_DATA', res.data.data);
                     commit('DISABLEDS', false)
                     commit('TUISHOW', true)
@@ -38,14 +40,12 @@ export default {
                         commit('DISABLEDS', true)
                         commit('TUISHOW', false)
                     }
-
                 } else {
                     commit('DISABLEDS', false)
                     commit('TUISHOW', false)
-                    // this.showToast(res.data.msg);
                 }
             })
-            .catch(function (err) {
+            .catch((err) => {
                 console.log(err);
             });
 
@@ -61,7 +61,17 @@ export default {
     hideloader : ({commit}) => {
         commit('HIDELOADING')
     },
+    changedefaults : ({
+        commit
+    }, data) => {
+        commit('CHANGE_DEFAULTS', data)
+    },
+    typeindex : ({
+        commit
+    }, data) => {
+        commit('TYPE_INDEX', data)
+    }
     // toast:({commit})=>{     commit('TOAST') }, disableds:({commit},bool)=>{
-    // commit('DISABLEDS',bool) }, tuishow:({commit},bool)=>{
-    // commit('TUISHOW',bool) }
+    // commit('DISABLEDS',bool) }, tuishow:({commit},bool)=>{ commit('TUISHOW',bool)
+    // }
 }

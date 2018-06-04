@@ -12,7 +12,7 @@ import store from './store/index'
 
 
 
-axios.defaults.baseURL = 'http://192.168.6.125'; //本地地址
+axios.defaults.baseURL = 'http://w.i.htyy.com/doctor_ajax.php'; //本地地址
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 Vue.use(router);
 Vue.use(MuseUI)

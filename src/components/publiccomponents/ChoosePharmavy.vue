@@ -28,8 +28,8 @@
             </mu-list>
         </mu-popup>
         <!-- 非弹出层的默认配送方式 -->
-        <mu-flexbox orient="horizontal" class="dis_type" v-if="tuishow">
-            <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item" :secondary="index==typeindex" @click.native="chooseType(index)" />
+        <mu-flexbox orient="horizontal" class="dis_type" v-if="tuishow"  wrap="wrap" >
+            <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item" :secondary="index==typeindexs" @click.native="chooseType(index)" />
         </mu-flexbox>
         <mu-toast v-if="toast" message="当前用药类型没有推荐药房" />
     </div>
@@ -57,15 +57,15 @@ export default {
             },
             servers: [],//选中的服务类型
             num: 1,
-            typeindex: 0,
+            // typeindex: 0,
             typeindex2: 0,
-            defaults: this.defaulte,
         }
     },
     methods: {
         openpopup(position) {
             this[position + 'Popup'] = true;
             this.servers = [];
+            this.typeindex2=0;
             let keys = Object.keys(this.pharmavyDatas.select);
             this.num = keys[0];//打开推荐其他药房时，默认选中第一个服务类型及当前类型下的供应商
             // console.log(keys);
@@ -74,7 +74,6 @@ export default {
                     this.servers.push({ name: this.server[item], type: item })
                 })
             } else {
-                // this.showToast()
                 // console.log("无数据")
             }
             // console.log(this.$store.state.pharmavyData.default.serviceArr)
@@ -96,15 +95,18 @@ export default {
 
         },
         choosePhar(index, item) {
-            // console.log(index, item)
-            this.defaults = item
+            this.changedefaults(item)
             this.checkindex = index
             console.log(this.defaults, item)
         },
         chooseType(index) {
-            this.typeindex = index
+            this.typeindex(index)
+            // this.typeindex = index
         },
-
+        ...mapActions([
+            'changedefaults',
+            'typeindex'
+        ]),
 
 
     },
@@ -112,19 +114,20 @@ export default {
 
     },
     beforeMount() {
-        this.defaults = this.defaulte;
-        console.log("beforeMount")
-        console.log(this.defaults,this.defaulte)
+        // this.defaults = this.defaulte;
+        // console.log("beforeMount")
+        // console.log(this.defaults,this.defaulte)
     },
     mounted() {
-
+        // console.log(this.defaults, this.pharmavyDatas)
     },
     beforeUpdate() {
         // console.log(this.defaults, this.defaulte)
     },
     updated() {
-        console.log("updated")
-        console.log(this.defaults)
+        // console.log("updated")
+        // console.log(this.defaults)
+        // console.log(this.defaults, this.pharmavyDatas)
     },
     components: {
         pharmacylist,
@@ -133,13 +136,13 @@ export default {
     },
     computed: {
         // 全局共享的数据
-        defaulte() {
-            return this.pharmavyDatas.default
-        },
+
         ...mapState({
+            defaults: state => state.defaults,
             pharmavyDatas: state => state.pharmavyData,
             toast: state => state.toast,
             tuishow: state => state.tuishow,
+            typeindexs: state => state.typeindex,
 
         }),
         serviceArrDefault() {
@@ -159,7 +162,7 @@ export default {
                 });
             }
             return arr;
-        }
+        },
     }
 
 }

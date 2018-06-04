@@ -7,8 +7,10 @@ import {
     PHARMAVT_DATA,
     TOAST,
     DISABLEDS,
-    TUISHOW
-    
+    TUISHOW,
+    CHANGE_DEFAULTS,
+    TYPE_INDEX
+
 } from './mutation-types.js'
 export default {
     ADD_DATAS(state, datas) {
@@ -18,6 +20,7 @@ export default {
         state.datas2 = datas;
     },
     PHARMAVT_DATA(state, datas) {
+        state.defaults = datas.default;
         state.pharmavyData = datas;
     },
     IS_TRUE(state, bool) {
@@ -29,16 +32,25 @@ export default {
     [HIDELOADING](state) {
         state.showLoading = false;
     },
-    TOAST(state){
-        state.toast=true;
+    TOAST(state) {
+        state.toast = true;
         let toastTimer;
-        if (toastTimer) clearTimeout(toastTimer)
-            toastTimer = setTimeout(() => { state.toast = false }, 2000)
+        if (toastTimer) 
+            clearTimeout(toastTimer)
+        toastTimer = setTimeout(() => {
+            state.toast = false
+        }, 2000)
     },
-    DISABLEDS(state,bool){
-        state.disableds=bool
+    DISABLEDS(state, bool) {
+        state.disableds = bool
     },
-    TUISHOW(state,bool){
-        state.tuishow=bool
+    TUISHOW(state, bool) {
+        state.tuishow = bool
+    },
+    CHANGE_DEFAULTS(state, data) {
+        state.defaults =data
+    },
+    TYPE_INDEX(state, data){
+        state.typeindex=data
     }
 }

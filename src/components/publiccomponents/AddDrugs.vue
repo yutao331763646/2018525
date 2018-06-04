@@ -267,9 +267,7 @@ export default {
             let _this = this;
             // axios.get('/HTYY/WeiXin/Redis.php?drug=drug&sId=159101')
             //     .then(function (res) {
-            //         if (res.status == 200) {
-            //             _this.drugs = res.data;
-            //         }
+                
             //     })
             //     .catch(function (err) {
             //         console.log(err);
