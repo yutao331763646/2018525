@@ -33,7 +33,7 @@
         <mu-flexbox wrap="wrap" :gutter=0 class="type">
             <!-- 药品类型 -->
             <mu-flexbox-item v-for="(item,index) in typedata" :key="index" @click.native="chooseType(index,item.type)">
-                <mu-raised-button :label="item.name" :secondary="index==typeindex" />
+                <mu-raised-button :label="item.name" :secondary="item.type==typeindex" />
             </mu-flexbox-item>
         </mu-flexbox>
         <mu-flexbox class="tuijya">
@@ -82,7 +82,6 @@ export default {
                 //     name: '拍照'
                 // },
             ],
-            typeindex: 0,
             open: false,
             toast: false,
             toastMsg: '',//吐司的msg
@@ -92,7 +91,6 @@ export default {
     methods: {
         chooseType(index, type) {
             console.log(type)
-            this.typeindex = index;
             let _this = this;
             this.pharmavyData(type);
 
@@ -100,14 +98,12 @@ export default {
         },
         goProposal() {
             this.$router.push({ path: '/propsal' })
-            console.log(this.$store.state.pharmavyData)
         },
         toggle() {
-
+            console.log("获取用户的历史订单")
             let _this = this;
             axios.get('http://w.i.htyy.com/doctor_ajax.php?do=getUserOrderInfo&uid=1447329')
                 .then((res) => {
-                    console.log(res)
                     if (res.data.code == 1) {
                         _this.open = !_this.open;
                         _this.pricelist = res.data.data;
@@ -137,7 +133,6 @@ export default {
                 .then((res) => {
                     // console.log(res)
                     if (res.data.code == 1) {
-                        // console.log(res.data.data)
                         _this.typedata = res.data.data
 
                     } else {
@@ -149,7 +144,8 @@ export default {
                 });
         },
         ...mapActions([
-            'pharmavyData'
+            'pharmavyData',
+            'type'
         ]),
     },
     mounted() {
@@ -164,6 +160,7 @@ export default {
         ...mapState({
             // 	pharmavyData: state => state.pharmavyData,
             disableds: state => state.disableds,
+            typeindex: state => state.type,
         })
     }
 }

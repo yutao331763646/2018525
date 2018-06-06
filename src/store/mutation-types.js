@@ -9,3 +9,7 @@ export const DISABLEDS =  'DISABLEDS';
 export const TUISHOW =  'TUISHOW';
 export const CHANGE_DEFAULTS =  'CHANGE_DEFAULTS';
 export const TYPE_INDEX =  'TYPE_INDEX';
+export const GET_DRUGS_DATA =  'GET_DRUGS_DATA';
+export const TYPE =  'TYPE';
+export const PWJJ =  'PWJJ';
+export const PWJJARR =  'PWJJARR';

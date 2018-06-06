@@ -9,8 +9,8 @@ Vue.use(Router)
 export default new Router({
     routes: [{
             path: '/',
-            name: 'SchemeType',
-            component: SchemeType
+            name: 'SelectUsers',
+            component: SelectUsers
         },
         {
             path: '/schemetype',

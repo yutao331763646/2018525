@@ -1,8 +1,13 @@
 <template>
     <div class="addgrugs">
         <mu-appbar title="添加方案">
-            <!-- <mu-icon-button icon="keyboard_arrow_left" slot="left" @click.native="closeFang()" /> -->
-             <mu-flat-button slot="left" label="常用方" color="white" @click="storeChang()" />
+            <mu-flat-button slot="left" label="常用方" color="white" @click="storeChang()" />
+            <mu-dialog :open="dialogexplist" @close="closeexplist" title="请选择常用方" scrollable>
+                <mu-menu>
+                    <mu-menu-item v-for="(item,index) in explists" :key="index" :title="item.exp.name" @click="chooseexps(item.exp.id)" />
+                </mu-menu>
+                <mu-flat-button primary label="关闭" @click="closeexplist" slot="actions" />
+            </mu-dialog>
             <mu-flat-button slot="right" label="保存" color="white" @click="storeFang()" />
         </mu-appbar>
         <div class=editdrug>
@@ -11,9 +16,9 @@
 
                     <div class="name">
                         <!-- <span class="delete">7</span> -->
-                        <mu-icon value="remove_circle" color="red" class="delete" :size="18" @click="deletedrug(index)"/>
+                        <mu-icon value="remove_circle" color="red" class="delete" :size="18" @click="deletedrug(index)" />
                         <div>
-                            <span @click="chooseType(index,item.type)">{{item.name}}</span>
+                            <span @click="chooseType(index,item.type)">{{item.drugName}}</span>
                             <span class="jftype">{{item.type}}</span>
                         </div>
                     </div>
@@ -28,7 +33,7 @@
                 <li class="list">
                     <div class="edit">
                         <!-- <mu-icon value="remove_circle" color="red" :size="18" /> -->
-                        <span v-if="drugNameOk">{{drugNameOks.name}}</span>
+                        <span v-if="drugNameOk">{{drugNameOks.drugName}}</span>
                         <mu-dialog :open="choosetype" title="请选择煎法" @close="choosetypecloseqx">
                             <mu-flexbox wrap="wrap">
                                 <mu-raised-button v-for="(item,index) in typeLists" :key="index" :label="item" class="type" :class="{'active':index==typeactive}" @click="chooseTypeOk(item,index)" />
@@ -56,7 +61,7 @@
             <div class="druglistswiper">
                 <ul>
                     <li v-for="(item,index) in drugListChoose" :key="index" @click="drugOk(item)">
-                        <span>{{item.name}}</span>
+                        <span>{{item.drugName}}</span>
                         <span>{{item.sprice+"元 / "+item.unit}}</span>
                     </li>
 
@@ -96,7 +101,7 @@
                         </mu-flexbox>
                         <mu-flexbox orient="horizontal">
                             <mu-raised-button label="." class="num" @click="inputNum('.')" />
-                            <mu-toast v-if="toast" message="请输入正确格式" @close="hideToast" />
+
                             <mu-raised-button label="0" class="num" @click="inputNum('0')" />
                             <mu-raised-button icon="keyboard_hide" class="num" />
                         </mu-flexbox>
@@ -107,21 +112,29 @@
                 </mu-flexbox>
             </mu-flexbox>
         </div>
+        <mu-toast v-if="toast" :message="toastMsg" @close="hideToast" />
+        <mu-dialog :open="drugCL" title="超量啦" @close="closedrugCL">
+            超量啦,确定输入吗？
+            <mu-flat-button slot="actions" @click="closedrugCL" primary label="取消" />
+            <mu-flat-button slot="actions" primary @click="drugCLy" label="确定" />
+        </mu-dialog>
+
+        <mu-dialog :open="dialogpwjj" title="配伍禁忌提醒">
+            {{dialogpwjjarr[0]+"和"+dialogpwjjarr[1]+"配伍禁忌"}}
+            <mu-flat-button slot="actions" @click="closepwjj" primary label="取消" />
+            <mu-flat-button slot="actions" primary @click="closepwjjok" label="确定" />
+        </mu-dialog>
     </div>
 </template>
 
 <script>
 import axios from "axios";
 import { mapActions } from 'vuex'
+import { mapState } from 'vuex'
 export default {
     data() {
         return {
-            drugs: [],//药品库
             drugunit: '',//添加方案时的药的单位
-            // diseaseNamecs: '',//病症名
-            // openDiseaseListcs: false,//搜索病症的下拉
-            // diseasescs: ["111", "222", "ddd"],//模糊查询返回的结果
-            // actives: [],
             keyboardEn1: ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
             keyboardEn2: ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
             keyboardEn3: ["Z", "X", "C", "V", "B", "N", "M"],
@@ -142,31 +155,51 @@ export default {
             drugunitNum: '',//药品输入的量
             numOklActive: false,//数字确认键的高亮	
             toast: false,
+            toastMsg: '',//吐司的msg
             drugNameOkLists: [],//确定重量之后的药品列表 
             typeLists: ['无', '先煎', '后下', '烊化', '包煎', '另煎(炖)', '研末', '分冲', '研末包煎', '捣碎'],
             choosetype: false,//选择煎法
-            // decoctingmethod:'',//煎法
             clickIndex: 0,//选择煎法时，被点的第几个
             choosedType: '',//选择的煎法，下一个为确定或者取消
             typeactive: 0,
-            daddddddddd: []
+            dialogexplist: false,
+            explists: [],//常用方列表
+            drugCL: false,//超量提醒
+            max: 0,//最大剂量
+            is_abnormal: 0,//是否异常
+            dialogpwjj: false,//配伍禁忌提醒的弹出层
+            dialogpwjjarr: [],//单个输入时配伍禁忌的组合，用于渲染弹窗
+            dialogpwjjarrid: [],//单个输入时配伍禁忌的组合，用于 传给后台
+            valafterpwjj: {},//点击药品之后 把值存到这里  再根据弹出的选择确定要不要
+
         }
     },
     methods: {
         inputEn(val) {
-            //  this.drugNameJp=''
             this.drugNameJpShow = true;
             this.drugNameJpremind = false;
             this.drugNameJp += val;
             this.drutMatching(this.drugNameJp);
-            // console.log(val)
-            // console.log(this.drugNameJp)
-
         },
         deleteInputEn() {
             this.drugNameJp = this.drugNameJp.substring(0, this.drugNameJp.length - 1);
             if (this.drugNameJp.length == 0) this.drugNameJpremind = true;
             this.drutMatching(this.drugNameJp);
+        },
+        closepwjj() {
+            this.dialogpwjj = false;
+            this.drugNameOks = {};
+
+            this.drugNameJp = '';
+            this.drugNameOk = false;
+            this.customCuisor = true;
+            this.drugNameJpShow = true
+            this.drugListChoose = [];
+            this.drugunitShow = false;
+            this.drugNameJpremind = true;
+            this.keyboardEn = true;
+            this.keyboardCh = false;
+            this.customCuisorNum = false;
 
         },
         // 药品的模糊匹配
@@ -178,31 +211,117 @@ export default {
             })
             this.drugs.forEach((item, index) => {
                 if (arrEn[index] != -1) {
-                    arrFinal.push({ name: item.name, sprice: item.sprice, unit: item.unit });
+                    arrFinal.push({
+                        drugName: item.name,
+                        sprice: item.sprice,
+                        unit: item.unit,
+                        drug_id: item.drug_id,
+                        max: item.max
+                    });
                 }
             })
-
             this.drugListChoose = arrFinal;
+            // console.log(this.drugListChoose)
             if (!val) {
                 this.drugListChoose = [];
             }
         },
         drugOk(val) {
-            // console.log(val)
-            this.drugNameJp = ''
+            let [arr, arr2] = [[], []];
+            this.pwjj.forEach((item, index) => {
+                item.forEach((itemO, indexO) => {
+                    if (val.drug_id == itemO.id) {
+                        arr.push(this.pwjj[index])
+                    }
+                })
+            });
+            this.drugNameOkLists.forEach((item, index) => {
+                arr2.push(item.drug_id)
+            });
+            // console.log(arr)
+            if (arr.length > 0) {
+                arr.forEach((item, index) => {
+                    item.forEach((itemO) => {
+                        console.log(arr2)
+                        if (arr2.length > 0) {
+                            arr2.forEach((itemT) => {
+                                if (itemT == itemO.id) {
+                                    console.log("禁忌")
+                                    console.log(arr[index])
+                                    console.log(arr[index][0].name + "和" + arr[index][1].name + "配伍禁忌")
+                                    this.dialogpwjjarr = [arr[index][0].name, arr[index][1].name];
+                                    this.dialogpwjjarrid = [arr[index][0].id, arr[index][1].id];
+                                    this.dialogpwjj = true;
+                                    this.valafterpwjj = val;
+                                } else {
+                                    this.drugNameJp = '';
+                                    this.drugNameOk = true;
+                                    this.drugNameOks = val;
+                                    this.customCuisor = false;
+                                    this.drugNameJpShow = false
+                                    this.drugListChoose = [];
+                                    this.drugunitShow = true;
+                                    this.drugNameJpremind = false;
+                                    this.keyboardEn = false;
+                                    this.keyboardCh = true;
+                                    this.customCuisorNum = true;
+                                    this.max = val.max
+                                }
+                            })
+                        } else {
+                            this.drugNameJp = '';
+                            this.drugNameOk = true;
+                            this.drugNameOks = val;
+                            this.customCuisor = false;
+                            this.drugNameJpShow = false
+                            this.drugListChoose = [];
+                            this.drugunitShow = true;
+                            this.drugNameJpremind = false;
+                            this.keyboardEn = false;
+                            this.keyboardCh = true;
+                            this.customCuisorNum = true;
+                            this.max = val.max
+                        }
+                    })
+                })
+            } else {
+                this.drugNameJp = '';
+                this.drugNameOk = true;
+                this.drugNameOks = val;
+                this.customCuisor = false;
+                this.drugNameJpShow = false
+                this.drugListChoose = [];
+                this.drugunitShow = true;
+                this.drugNameJpremind = false;
+                this.keyboardEn = false;
+                this.keyboardCh = true;
+                this.customCuisorNum = true;
+                this.max = val.max
+            }
+            // this.valafterpwjj = val;
+
+        },
+        closepwjjok() {
+            this.pwjjarr(this.dialogpwjjarrid)
+            this.dialogpwjj = false;
+
+            this.drugNameJp = '';
             this.drugNameOk = true;
-            this.drugNameOks = val;
+            this.drugNameOks = this.valafterpwjj;
             this.customCuisor = false;
             this.drugNameJpShow = false
             this.drugListChoose = [];
             this.drugunitShow = true;
             this.drugNameJpremind = false;
-            this.keyboardEn = false
-            this.keyboardCh = true
-            this.customCuisorNum = true
+            this.keyboardEn = false;
+            this.keyboardCh = true;
+            this.customCuisorNum = true;
+            this.max = this.valafterpwjj.max
+
         },
-        showToast() {
+        showToast(msg) {
             this.toast = true
+            this.toastMsg = msg
             if (this.toastTimer) clearTimeout(this.toastTimer)
             this.toastTimer = setTimeout(() => { this.toast = false }, 2000)
         },
@@ -213,16 +332,20 @@ export default {
         // 数字键的输入
         inputNum(val) {
             if (val == '.' && this.drugunitNum.length == 0) {//输入的第一个字符只能为数字，不能为.
-                this.showToast()
+                this.showToast("请输入正确格式")
                 this.drugunitNum = ''
             } else {
                 if (this.drugunitNum.length < 5) {
                     let str = this.drugunitNum + val;
                     let n = (str.split('.')).length - 1;
                     if (n > 1) {//只能出现一个.
-                        this.showToast();
+                        this.showToast("请输入正确格式")
                     } else {
                         this.drugunitNum += val;
+                        if (this.max != 0 && Number(this.drugunitNum) > this.max) {
+                            console.log("超量啦")
+                            this.drugCL = true
+                        }
                     }
                 };
                 if (this.drugunitNum.length > 0) {//有输入时，确认键高亮
@@ -231,7 +354,14 @@ export default {
                     this.numOklActive = false;
                 }
             }
-
+        },
+        closedrugCL() {
+            this.drugCL = false;
+            this.drugunitNum = ''
+        },
+        drugCLy() {
+            this.drugCL = false;
+            this.is_abnormal = 1;
         },
         // 删除数字
         deleteNum() {
@@ -243,39 +373,38 @@ export default {
             }
         },
         inputNumOk() {
-            // console.log("确认")
             if (this.numOklActive) {
-                this.drugNameOkLists.push({ name: this.drugNameOks.name, num: this.drugunitNum, unit: this.drugNameOks.unit, type: '' })
-                // console.log(this.drugNameOkLists);
-
+                let idArr = [];//新数组保存id
+                this.drugNameOkLists.forEach((item) => {
+                    idArr.push(item.drug_id)
+                })
+                // 用新的id和数组里的id进行对比，如果返回-1就push  
+                if (idArr.indexOf(this.drugNameOks.drug_id) == -1) {
+                    this.drugNameOkLists.push({
+                        drugName: this.drugNameOks.drugName,
+                        num: this.drugunitNum,
+                        unit: this.drugNameOks.unit,
+                        type: '',
+                        drug_id: this.drugNameOks.drug_id,
+                        is_abnormal: this.is_abnormal,
+                        max: this.drugNameOks.max
+                    })
+                } else {
+                    this.showToast('药方里面已经有这味药啦！');
+                }
             }
-
-
             this.customCuisor = true;//简拼的光标显示
             this.drugNameJpremind = true;//显示  '请输入键盘'
             this.drugNameOk = false;//药品隐藏
             this.customCuisorNum = false;
             this.drugunitNum = '';
             this.keyboardCh = false;
-            this.keyboardEn = true
-            // console.log(this.$store.state.datas)
+            this.keyboardEn = true;
+            this.is_abnormal = 0;
         },
 
-
-        // 获取药品数据
-        getDrugsData() {
-            let _this = this;
-            // axios.get('/HTYY/WeiXin/Redis.php?drug=drug&sId=159101')
-            //     .then(function (res) {
-                
-            //     })
-            //     .catch(function (err) {
-            //         console.log(err);
-            //     });
-        },
         // 打开选择煎法弹出
         chooseType(index, val) {
-            // console.log(index, val)
             this.choosetype = true
             this.clickIndex = index;
             // 当前是什么煎法，打开选择煎法弹窗时，什么煎法就高亮
@@ -309,33 +438,223 @@ export default {
                 this.drugNameOkLists[this.clickIndex].type = this.typeLists[this.typeactive]
             }
         },
-         deletedrug(index){
+        deletedrug(index) {
             console.log(index)
-            this.drugNameOkLists.splice(index,1)
+            this.drugNameOkLists.splice(index, 1)
         },
         ...mapActions([
-            'adddatas2'
+            'adddatas2',
+            'pwjjarr'
         ]),
-        // 取消保存方案
-        // closeFang() {
-        //     this.daddddddddd=this.$store.state.datas2
-        //     console.log("取消保存方案")
-        //     this.$store.dispatch('istrue', false)
-        //     this.adddatas2(this.$store.state.datas2)
-        //     console.log(this.$store.state.datas2)
-        // },
+        storeChang() {
+            this.dialogexplist = true
+            // console.log("导入常用方列表")
+            let _this = this;
+            axios.post('?do=explist'
+            ).then((res) => {
+                // console.log(res)
+                if (res.data.succ) {
+                    _this.explists = res.data.sec
+                } else {
+                    _this.showToast(res.data.msg);
+                }
+
+            }).catch((err) => {
+                console.log(err);
+                _this.showToast('连接服务器失败');
+            });
+        },
+        closeexplist() {
+            this.dialogexplist = false
+        },
         storeFang() {
             console.log("保存方案")
             this.$store.dispatch('istrue', false)
             this.adddatas2(this.drugNameOkLists)
         },
-       
+        chooseexps(id) {
+            let _this = this,
+                param = new FormData();
+            param.append("id", id);
+            param.append("type", _this.type);
+            param.append("supid", _this.supid)
+            axios.post('?do=toLeadExp', param
+            ).then((res) => {
+                // console.log(res.data)
+                if (res.data.succ) {
+                    res.data.sec.forEach((item) => {
+                        console.log(item)
+                        // arr为内部外导入的所有药  合并到一起；
+                        let arr = [];
+                        arr.push(item.drug_num)
+                        this.drugNameOkLists.forEach((item1) => {
+                            arr.push(item1.drug_id)
+                        })
+
+
+                        // console.log(arr)
+                        // arr2 为所有药品对应的禁忌组合
+                        let arr2 = [];
+                        this.pwjj.forEach((itemX, index) => {
+                            itemX.forEach((itemO, indexO) => {
+                                if (item.drug_num == itemO.id) {
+                                    arr2.push(this.pwjj[index])
+                                }
+                            })
+                        });
+                        console.log(arr2)
+                        arr2.forEach((item2, indexx) => {
+                            arr.forEach((item5) => {
+                                console.log(item5, item2)
+                                if (item5 == item2[0].id) {
+                                    // console.log(8888)
+                                    this.$set(item, 'pwjj', item2[1])
+                                }
+                                if (item5 == item2[1].id) {
+                                    // console.log(99999)
+                                    this.$set(item, 'pwjj', item2[0])
+                                }
+                            })
+
+                        })
+                        // console.log(item)
+                        let drug = [{
+                            id: 1000,
+                            name: 'aaa',
+                            pwjj: [
+                                {
+                                    id: 1003,
+                                    name: 'ccc'
+                                }
+                            ]
+                        }, {
+                            id: 1001,
+                            name: 'bbb',
+                            pwjj: [
+                                {
+                                    id: 1004,
+                                    name: 'ddd'
+                                }
+                            ]
+                        }, {
+                            id: 1003,
+                            name: 'ccc',
+                            pwjj: [
+                                {
+                                    id: 1000,
+                                    name: 'aaa'
+                                }
+                            ]
+                        }, {
+                            id: 1004,
+                            name: 'ddd',
+                            pwjj: [
+                                {
+                                    id: 1001,
+                                    name: 'bbb'
+                                }, {
+                                    id: 1007,
+                                    name: 'eee'
+                                }
+                            ]
+                        }];
+
+                        let pwjj = [
+                            [
+                                {
+                                    id: 1000,
+                                    name: 'aaa'
+                                }, {
+                                    id: 1003,
+                                    name: 'ccc'
+                                }
+                            ], [
+                                {
+                                    id: 1001,
+                                    name: 'bbb'
+                                }, {
+                                    id: 1004,
+                                    name: 'ddd'
+                                }
+                            ]
+                        ]
+
+                        // let [arr, arr2] = [[], []];
+                        // this.pwjj.forEach((itemX, index) => {
+                        //     itemX.forEach((itemO, indexO) => {
+                        //         if (item.drug_num == itemO.id) {
+                        //             arr.push(this.pwjj[index])
+                        //         }
+                        //     })
+                        // });
+
+                        // //arr为当前添加进来的经验方所有的禁忌列表
+                        // //arr2为当前容器内的药品id
+                        // // console.log(arr)
+                        // this.drugNameOkLists.forEach((itemY, index) => {
+                        //     arr2.push(itemY.drug_id)
+                        // });
+
+                        // // console.log(this.drugNameOkLists)
+                        // // console.log(arr)
+                        // // 遍历取出经验方内的禁忌id  itemZ为单个禁忌组合 每个组合有2味药
+                        // arr.forEach((itemZ, index) => {
+                        //     console.log(itemZ)
+                        //     // 遍历取出单个组合内的药品id itemY为组合中的单个  
+                        //     itemZ.forEach((itemY) => {
+                        //         // 遍历取出容器内的 药品的id 用来和经验方内的id进行对比  itemT为容器内存在的id
+                        //         arr2.forEach((itemT,indexT) => {
+                        //             // console.log(itemT,itemO.id)
+                        //             // 如果容器内存在的id==
+                        //             if (itemT == item.drug_num) {
+                        //                 // console.log("禁忌")
+                        //                 // console.log(arr[index])
+                        //                 console.log(arr[index][0].name + "和" + arr[index][1].name + "配伍禁忌")
+
+                        //             }else{
+
+                        //             }
+                        //         })
+                        //     })
+                        // })
+
+                        let idArr = [];
+                        _this.drugNameOkLists.forEach((item1) => {
+                            idArr.push(item1.drug_id)
+                        })
+                        if (idArr.indexOf(item.drug_num) == -1) {
+                            _this.drugNameOkLists.push({
+                                drugName: item.drugName,
+                                num: item.num,
+                                sprice: item.price,
+                                unit: item.unit,
+                                drug_id: item.drug_num,
+                                max: item.max
+                            })
+                        } else {
+                            this.showToast("已删除重复的药材");
+                        }
+                    })
+
+                } else {
+                    _this.showToast(res.data.msg);
+                }
+            }).catch((err) => {
+                console.log(err);
+                _this.showToast('连接服务器失败');
+            });
+        }
     },
     mounted() {
-        this.getDrugsData();
+
     },
     computed: {
-
+        ...mapState({
+            drugs: state => state.drugsData,
+            type: state => state.type,
+            supid: state => state.defaults.supplier_id,
+            pwjj: state => state.pwjj,
+        })
     }
 }
 </script>
@@ -475,13 +794,12 @@ export default {
         margin-right: 2px;
         animation: customcuisor 0.75s;
         animation-iteration-count: infinite;
-        span{
-            &:last-of-type{
-                display: block;
-                margin-left: 5px
-            }
+        span {
+          &:last-of-type {
+            display: block;
+            margin-left: 5px;
+          }
         }
-       
       }
     }
   }
@@ -498,8 +816,6 @@ export default {
     color: #fff;
   }
 }
-
-
 
 @keyframes customcuisor {
   from {
@@ -554,12 +870,17 @@ export default {
 
 .mu-toast {
   height: 39px;
-  width: 40%;
+  width: 60%;
   position: fixed;
   left: 50%;
   bottom: 50px;
-  margin-left: -20%;
+  margin-left: -30%;
   line-height: 39px;
   background-color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+.mu-dialog .mu-dialog-title {
+  padding: 10px 15px 10px;
 }
 </style>

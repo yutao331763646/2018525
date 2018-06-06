@@ -8,7 +8,7 @@ Vue.use(Vuex)
 //创建Store实例
 const state = {
     datas: [],
-    datas2: [],
+    datas2: [], //选中保存的药品
     bool: false,
     showLoading: false,
     defaults: {
@@ -39,7 +39,30 @@ const state = {
     toast: false,
     disableds: false,
     tuishow: true,
-    typeindex: 0
+    typeindex: 0, //取药方式
+    drugsData: [
+        {
+            "id": "23302",
+            "drug_id": "1010001",
+            "city_poject_code": null,
+            "province": null,
+            "city": null,
+            "sprice": "0.0300",
+            "supplier_id": "159101",
+            "max": "0",
+            "code": "1010001",
+            "name": "麻秸(油麻稿)",
+            "smple_code": "mjymg,yt,iyt",
+            "type": "1",
+            "level": "0",
+            "unit": "克",
+            "poison": "0",
+            "type_code": null
+        }
+    ],
+    type: 1, //开发类型
+    pwjj: ['dd'], //获取所有的配伍禁忌数组
+    pwjjarr:[],//要传给后台的配伍禁忌数组
 }
 const getters = {
     showLoading(state) {
@@ -53,14 +76,7 @@ const getters = {
     },
     tuishow(state) {
         return state.tuishow
-    },
-
-    // defaults(state){     return state.pharmavyData.default } serviceArrDefault()
-    // {     let server = {         1: '代煎代送',         2: '自煎代送',         3:
-    // '代煎自取',         4: '自取',         5: '送货上门',         6: '货到付款'     };     let
-    // arr = [],         serviceArr = state.pharmavyData.default.serviceArr;     if
-    // (serviceArr) { serviceArr.forEach((item, index) => { arr.push(server[item])
-    // });     }     return arr; }
+    }
 }
 
 //导出
@@ -70,6 +86,7 @@ export default new Vuex.Store({
     getters,
     mutations,
     plugins: [createPersistedState({
+            storage: window.localStorage,
             reducer: state => ({typeindex: state.typeindex})
         })]
 })

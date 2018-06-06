@@ -9,7 +9,11 @@ import {
     DISABLEDS,
     TUISHOW,
     CHANGE_DEFAULTS,
-    TYPE_INDEX
+    TYPE_INDEX,
+    GET_DRUGS_DATA,
+    TYPE,
+    PWJJ,
+    PWJJARR
 } from './mutation-types.js'
 import axios from "axios";
 export default {
@@ -26,12 +30,12 @@ export default {
     pharmavyData({
         commit
     }, data) {
+        commit('TYPE', data)
         let url = '?do=getSupByTYPE&type=' + data
         axios
             .get(url)
             .then((res) => {
                 if (res.data.code == 1) {
-                    console.log(res)
                     commit('PHARMAVT_DATA', res.data.data);
                     commit('DISABLEDS', false)
                     commit('TUISHOW', true)
@@ -70,8 +74,25 @@ export default {
         commit
     }, data) => {
         commit('TYPE_INDEX', data)
+    },
+    drugsData : ({
+        commit
+    }, data) => {
+        commit('GET_DRUGS_DATA', data)
+    },
+    getAllpwjj : ({commit}) => {
+        axios
+            .post('?do=getAllpwjj')
+            .then((res) => {
+                commit('PWJJ', res.data)
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    },
+    pwjjarr:({
+        commit
+    }, data)=>{
+        commit('PWJJARR', data)
     }
-    // toast:({commit})=>{     commit('TOAST') }, disableds:({commit},bool)=>{
-    // commit('DISABLEDS',bool) }, tuishow:({commit},bool)=>{ commit('TUISHOW',bool)
-    // }
 }

@@ -9,8 +9,11 @@ import {
     DISABLEDS,
     TUISHOW,
     CHANGE_DEFAULTS,
-    TYPE_INDEX
-
+    TYPE_INDEX,
+    GET_DRUGS_DATA,
+    TYPE,
+    PWJJ,
+    PWJJARR
 } from './mutation-types.js'
 export default {
     ADD_DATAS(state, datas) {
@@ -52,5 +55,17 @@ export default {
     },
     TYPE_INDEX(state, data){
         state.typeindex=data
+    },
+    GET_DRUGS_DATA(state, data){
+        state.drugsData=data
+    },
+    TYPE(state, data){
+        state.type=data
+    },
+    PWJJ(state, data){
+        state.pwjj=data
+    },
+    PWJJARR(state, data){
+        state.pwjjarr.push(data)
     }
 }

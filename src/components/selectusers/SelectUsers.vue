@@ -13,26 +13,13 @@
             <mu-col width="50" v-for="(item,index) in userLists" :key="index">
                 <mu-raised-button :label="item|username" :primary="true" :secondary="active==index" @click="chooseUser(index,item.id)" :data-uid="item.id" />
             </mu-col>
-            <!-- <mu-col width="50">
-                <mu-raised-button label="郑建洲 男 30岁" primary/>
-            </mu-col>
             <mu-col width="50">
-                <mu-raised-button label="郑建洲 男 30岁" primary/>
-            </mu-col>
-            <mu-col width="50">
-                <mu-raised-button label="郑建洲 男 30岁" primary/>
-            </mu-col> -->
-            <mu-col width="50">
-                <!-- <mu-raised-button label="新增 +" primary/></mu-col> -->
                 <mu-raised-button label="新增" labelPosition="before" icon="add" primary @click.native="addNew()" />
             </mu-col>
         </mu-row>
 
         <mu-row gutter class="new" v-if="news">
             <mu-col width="100">
-                <!-- <mu-content-block>
-                    新增用户
-                </mu-content-block> -->
                 <mu-flat-button label="新增用户" class="addnews" />
             </mu-col>
             <mu-col width="100">
