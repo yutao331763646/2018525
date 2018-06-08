@@ -13,7 +13,8 @@ import {
     GET_DRUGS_DATA,
     TYPE,
     PWJJ,
-    PWJJARR
+    PWJJARR,
+    PHARMAVT_DATAAFTER
 } from './mutation-types.js'
 export default {
     ADD_DATAS(state, datas) {
@@ -24,6 +25,9 @@ export default {
     },
     PHARMAVT_DATA(state, datas) {
         state.defaults = datas.default;
+        state.pharmavyData = datas;
+    },
+    PHARMAVT_DATAAFTER(state, datas){
         state.pharmavyData = datas;
     },
     IS_TRUE(state, bool) {
@@ -66,6 +70,9 @@ export default {
         state.pwjj=data
     },
     PWJJARR(state, data){
-        state.pwjjarr.push(data)
+        
+        state.pwjjarr.push(data);
+
+
     }
 }

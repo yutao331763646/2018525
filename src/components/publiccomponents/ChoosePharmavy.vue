@@ -13,7 +13,7 @@
                 <span>{{defaults.address}}</span>
             </div>
         </div>
-        <mu-popup position="bottom" popupClass="recommended_pharmacy" :open="bottomPopup" @close="closepopup('bottom')">
+        <mu-popup position="bottom" popupClass="recommended_pharmacy" :open="bottomPopup">
             <mu-appbar title="推荐药房">
                 <mu-flat-button slot="left" label="取消" color="white" @click="closepopup('bottom')" />
                 <mu-flat-button slot="right" label="保存" color="white" @click="storePhar('bottom')" />
@@ -28,7 +28,7 @@
             </mu-list>
         </mu-popup>
         <!-- 非弹出层的默认配送方式 -->
-        <mu-flexbox orient="horizontal" class="dis_type" v-if="tuishow"  wrap="wrap" >
+        <mu-flexbox orient="horizontal" class="dis_type" v-if="tuishow" wrap="wrap">
             <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item" :secondary="index==typeindexs" @click.native="chooseType(index)" />
         </mu-flexbox>
         <mu-toast v-if="toast" message="当前用药类型没有推荐药房" />
@@ -41,7 +41,6 @@ import { mapState, mapActions } from 'vuex'
 import axios from "axios";
 export default {
     name: 'ChoosePharmavy',
-
     data() {
         return {
             bottomPopup: false,
@@ -59,13 +58,35 @@ export default {
             num: 1,
             // typeindex: 0,
             typeindex2: 0,
+            pinkageSups: {
+                '1': ['000000', '159101', '059102'],
+                '2': ['059107']
+            },//满减活动的供应商id
         }
     },
     methods: {
         openpopup(position) {
             this[position + 'Popup'] = true;
             this.servers = [];
-            this.typeindex2=0;
+            this.typeindex2 = 0;
+            console.log(this.datas2)
+            if (this.datas2.length < 1) {
+                this.pharmavyData(this.type)
+                console.log("这是没有选择药品时打开的")
+
+            } else {
+                let _this = this,
+                    param = new FormData();
+                param.append('drug_code', this.datas2);
+                axios.post('?do=selectSup', param)
+                    .then((res) => {
+                        console.log(res)
+                        this.pharmavyDatass(res.data.data);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
             let keys = Object.keys(this.pharmavyDatas.select);
             this.num = keys[0];//打开推荐其他药房时，默认选中第一个服务类型及当前类型下的供应商
             // console.log(keys);
@@ -74,9 +95,11 @@ export default {
                     this.servers.push({ name: this.server[item], type: item })
                 })
             } else {
-                // console.log("无数据")
+                console.log("无数据")
             }
-            // console.log(this.$store.state.pharmavyData.default.serviceArr)
+
+
+
         },
         // 取消选择其他药房
         closepopup(position) {
@@ -86,7 +109,25 @@ export default {
         //保存选择的药房
         storePhar(position) {
             this[position + 'Popup'] = false
-            console.log(this.defaults)
+            let base = 0;
+            this.pinkageSups[1].forEach((item) => {
+
+                console.log(this.type, item, this.sid)
+                if (this.type == 1 && item == this.sid) {
+                    base += 1;
+                }
+            })
+            if (base == 0) {
+                this.$emit('pinkageSupze', false);
+            } else {
+                this.$emit('pinkageSupze', true);
+            }
+
+            // this.pinkageSups[2].forEach((item) => {
+            //     if (this.type == 2 && item == this.sid) {
+            //         this.$emit('pinkageSupze', true)
+            //     } 
+            // })
 
         },
         clickType(index, type) {
@@ -105,44 +146,36 @@ export default {
         },
         ...mapActions([
             'changedefaults',
-            'typeindex'
+            'typeindex',
+            'pharmavyDatass',
+            'pharmavyData',
         ]),
-
-
     },
     created() {
 
     },
     beforeMount() {
-        // this.defaults = this.defaulte;
-        // console.log("beforeMount")
-        // console.log(this.defaults,this.defaulte)
     },
     mounted() {
-        // console.log(this.defaults, this.pharmavyDatas)
     },
     beforeUpdate() {
-        // console.log(this.defaults, this.defaulte)
     },
     updated() {
-        // console.log("updated")
-        // console.log(this.defaults)
-        // console.log(this.defaults, this.pharmavyDatas)
     },
     components: {
         pharmacylist,
-
-
     },
     computed: {
         // 全局共享的数据
-
         ...mapState({
             defaults: state => state.defaults,
             pharmavyDatas: state => state.pharmavyData,
             toast: state => state.toast,
             tuishow: state => state.tuishow,
             typeindexs: state => state.typeindex,
+            datas2: state => state.datas2,
+            type: state => state.type,
+            sid: state => state.defaults.supplier_id,
 
         }),
         serviceArrDefault() {

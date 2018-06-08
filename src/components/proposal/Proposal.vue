@@ -83,7 +83,8 @@
             <!--用药建议标题 -->
             <mu-flexbox class="proposl proposal">
                 <mu-content-block>用药建议： </mu-content-block>
-                <mu-raised-button class="demo-raised-button" label="保存为经验方" @click="storeExpS" />
+                <mu-raised-button class="demo-raised-button" label="保存为经验方" @click="getexpclassify" />
+                <!-- <mu-raised-button class="demo-raised-button" label="保存为经验方" @click="storeExpS" />  -->
             </mu-flexbox>
             <mu-divider/>
         </mu-flexbox>
@@ -101,7 +102,7 @@
                 <mu-raised-button label="添加方案" class="demo-raised-button" @click.native="openDrawerFang1" />
                 <mu-drawer right :open="openDrawerFang" @close="toggle()" class="mudrawer">
 
-                    <adddrugs></adddrugs>
+                    <adddrugs @storeFange='storeFangs'></adddrugs>
 
                 </mu-drawer>
             </mu-flexbox>
@@ -148,32 +149,16 @@
                         </mu-flexbox>
                         <!-- <mu-divider class="tabline" /> -->
                         <mu-flexbox wrap="wrap">
-                            <mu-raised-button label="饭前一小时" class="time" @click="addTime('饭前一小时')" />
-                            <mu-raised-button label="饭后一小时" class="time" @click="addTime('饭后一小时')" />
-                            <mu-raised-button label="空腹服" class="time" @click="addTime('空腹服')" />
-                            <mu-raised-button label="晨起服" class="time" @click="addTime('晨起服')" />
+                            <mu-raised-button v-for="(item,index) in taTime" :key="index" :label="item" class="time" :secondary="timeactive==index" @click="addTime(item,index)" />
                         </mu-flexbox>
                         <mu-divider class="tabline" />
                         <mu-flexbox class="ftime" orient="horizontal">
                             <mu-content-block>忌口与禁忌</mu-content-block>
                         </mu-flexbox>
                         <mu-flexbox wrap="wrap">
-                            <mu-raised-button label="无" class="time" />
-                            <mu-raised-button label="忌辛辣" class="time" @click="addTaboo('忌辛辣')" />
-                            <mu-raised-button label="忌油腻" class="time" @click="addTaboo('忌油腻')" />
-                            <mu-raised-button label="忌生冷" class="time" @click="addTaboo('忌生冷')" />
-                            <mu-raised-button label="忌烟酒" class="time" @click="addTaboo('忌烟酒')" />
-                            <mu-raised-button label="忌发物" class="time" @click="addTaboo('忌发物')" />
-                            <mu-raised-button label="忌荤腥" class="time" @click="addTaboo('忌荤腥')" />
-                            <mu-raised-button label="忌酸涩" class="time" @click="addTaboo('忌酸涩')" />
-                            <mu-raised-button label="忌刺激性食物" class="time" @click="addTaboo('忌刺激性食物')" />
-                            <mu-raised-button label="忌敏性食物" class="time" @click="addTaboo('忌敏性食物')" />
-                            <mu-raised-button label="忌难消化食物" class="time" @click="addTaboo('忌难消化食物')" />
-                            <mu-raised-button label="备孕禁服" class="time" @click="addTaboo('备孕禁服')" />
-                            <mu-raised-button label="怀孕禁服" class="time" @click="addTaboo('怀孕禁服')" />
-                            <mu-raised-button label="经期停服" class="time" @click="addTaboo('经期停服')" />
-                            <mu-raised-button label="感冒停服" class="time" @click="addTaboo('感冒停服')" />
-                            <mu-raised-button label="忌与西药同服" class="time" @click="addTaboo('忌与西药同服')" />
+                            <!-- <mu-raised-button label="无" class="time" /> -->
+                            <mu-raised-button v-for="(item,index) in taboos" :key="index" :label="item" class="time" :secondary="true==tabooactive[index]" @click="addTaboo(item,index)" />
+
                         </mu-flexbox>
                     </mu-flexbox>
                     <mu-flexbox v-if="activeTab === 'tab3'" orient="vertical">
@@ -206,7 +191,7 @@
 
         <mu-flexbox orient="vertical" class="tuijya">
             <!-- 推荐药房的弹出 -->
-            <ChoosePharmavy />
+            <ChoosePharmavy @pinkageSupze="pinkageSupzet" />
 
             <!-- 价格列表 -->
             <mu-flexbox>
@@ -215,14 +200,14 @@
                     <mu-divider/>
                     <mu-list-item title="方案补充收费" afterText="￥0" />
                     <mu-divider/>
-                    <mu-list-item title="药费" afterText="单贴￥30.31 X 帖数7 = ￥210.00" />
+                    <mu-list-item title="药费" :afterText="'单贴￥'+drugprice+ 'X 帖数'+data1num+' = ￥'+(drugprice*data1num).toFixed(2)" />
                     <mu-divider/>
-                    <mu-list-item title="代煎费" afterText="帖数7 X 2包 = ￥28" />
+                    <mu-list-item title="代煎费" :afterText="'帖数'+data1num +'X '+data4num+'包 = ￥'+decoctings" />
                     <mu-divider/>
-                    <mu-list-item title="代送费" afterText="￥10" />
+                    <mu-list-item title="代送费" :afterText="'￥'+defaults.give_money" />
                     <mu-divider/>
-                    <mu-list-item title="优惠" describeText="供应商专属优惠满99包邮" afterText="￥-10" />
-                    <mu-divider/>
+                    <mu-list-item v-if="pinkageSupz" title="优惠" describeText="供应商专属优惠满99包邮" :afterText="'￥-'+subtrac99" />
+                    <mu-divider v-if="pinkageSupz" />
                     <mu-list-item title="总计" afterText="￥280.00" />
                 </mu-list>
             </mu-flexbox>
@@ -232,6 +217,23 @@
             </mu-flexbox>
         </mu-flexbox>
         <mu-toast v-if="toast" :message="toastMsg" @close="hideToast" />
+        <mu-dialog :open="dialogStoreJy" title="保存为经验方">
+            <mu-flexbox>
+                <mu-flexbox-item grow="1">
+                    <mu-flat-button label="经验方名称：" class="expname" />
+                </mu-flexbox-item>
+                <mu-flexbox-item grow="2">
+                    <mu-text-field hintText="请输入经验方名" class="expnameinput" v-model="n" ref="expnameinput" />
+                </mu-flexbox-item>
+            </mu-flexbox>
+            <mu-divider />
+            <mu-flexbox wrap="wrap">
+                <mu-raised-button :label="item.name" class="exp" v-for="(item,index) in classifys" :key="index" :secondary="classindex==index" @click="chooseClassfys(index,item.id)" />
+
+            </mu-flexbox>
+            <mu-flat-button slot="actions" @click="closedialogStoreJy" primary label="取消" />
+            <mu-flat-button slot="actions" primary @click="closedialogStoreJyY" label="确定" />
+        </mu-dialog>
     </div>
 </template>
 
@@ -245,8 +247,8 @@ import adddrugs from '../publiccomponents/AddDrugs'
 // import drugs from '../../json/drug.json'
 import axios from "axios";
 import { mapState } from 'vuex'
-
 import { mapActions } from 'vuex'
+import Qs from 'qs'
 export default {
     name: "Proposal",
     data() {
@@ -276,6 +278,22 @@ export default {
             actives: [],
             toast: false,
             toastMsg: '',//吐司的msg
+            dialogStoreJy: false,//保存为经验方的弹窗
+            classifys: [],//经验方分类列表
+            classindex: 0,
+            classify: 0,
+            n: '',
+            taboos: ['忌辛辣', '忌油腻', '忌生冷', '忌烟酒', '忌发物', '忌荤腥', '忌酸涩', '忌刺激性食物', '忌敏性食物', '忌难消化食物', '备孕禁服', '怀孕禁服', '经期停服', '感冒停服', '忌与西药同服'],
+            taTime: ['饭前一小时', '饭后一小时', '空腹服', '晨起服'],
+            timeactive: 50,
+            tabooactive: [],
+            drugprice: 0,//单贴费用
+            drugpricebase: 0,//帖数
+            pinkageSups: {
+                '1': ['000000', '159101', '059102'],
+                '2': ['059107']
+            },//满减活动的供应商id
+            pinkageSupz: false,//当前供应商是否满减
 
 
         }
@@ -293,33 +311,22 @@ export default {
         handleChange(val) {
             this.bottomNav = val;
         },
-
         // 关闭性别选择弹窗
-
         closenv() {
             console.log(this.$store.state.datas)
             this.dialog = false
             console.log("关闭性别选择弹窗")
         },
-
-
         //  关闭年龄弹窗
-
         close() {
             this.dialog2 = false
             console.log("关闭年龄弹窗")
         },
-
-
         //  方案补充收费弹窗
-
         closefnob() {
             this.dialog3 = false
-
         },
-
         //  方案补充收费的选择
-
         chooseonly(e) {
             this.price = e;
             this.dialog3 = false
@@ -365,23 +372,36 @@ export default {
         yiZhuInput() {
             console.log("让医嘱输入框获取焦点")
         },
-        addTime(val) {
-            this.valueYi = val
-
+        addTime(val, index) {
+            this.valueYi = val;
+            this.timeactive = index;
+            this.addTabooas();
         },
-        addTaboo(val) {
-            if (!this.valueYi) {
-                this.valueYi = val
-            } else {
-                this.valueYi = this.valueYi + "，" + val
-            }
+        addTaboo(val, indexs) {
+            this.tabooactive.forEach((item, index) => {
+                if (index === indexs) {
+                    if (this.tabooactive[indexs]) {
+                        this.tabooactive.splice(indexs, 1, false)
+                        this.valueYi = this.valueYi.replace('，' + val, '')
+                    } else {
+                        if (!this.valueYi) {
+                            this.valueYi = val
+                        } else {
+                            this.valueYi = this.valueYi + "，" + val
+                        }
+                        this.tabooactive.splice(indexs, 1, true)
+                    }
+                }
+            })
+        },
+        addTabooas() {
+            this.tabooactive = this.taboos.map((item, index) => {
+                return false;
+            })
         },
         addComm() {
             console.log("常用医嘱")
         },
-
-
-
         //  病症的模糊匹配
         handleInputdiseasecs() {
             this.openDiseaseListcs = true
@@ -405,11 +425,8 @@ export default {
                 this.openDiseaseListcs = false
             }
         },
-
         //  点击下拉的病症名
-
         chooseDiseasecs(val) {
-            console.log(val)
             this.actives.push(val);
             this.actives = Array.from(new Set(this.actives));
             this.openDiseaseListcs = false;
@@ -449,27 +466,133 @@ export default {
             this.toast = false
             if (this.toastTimer) clearTimeout(this.toastTimer)
         },
+        getexpclassify() {
+            this.dialogStoreJy = true;
+            let _this = this;
+            axios.post('?do=getexpclassify&isTest=nowTest')
+                .then((res) => {
+                    if (res.data.succ) {
+                        _this.classifys = res.data.sec;
+                        this.classify = res.data.sec[0].id;
+                    } else {
+                        _this.showToast(res.data.msg);
+                    }
+
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+
+        },
+        closedialogStoreJy() {
+            this.dialogStoreJy = false
+        },
+        closedialogStoreJyY() {
+            if (!this.n) {
+                console.log("kong")
+                this.$refs.expnameinput.focus()
+            } else {
+                this.storeExpS();
+                this.dialogStoreJy = false
+            }
+
+        },
+        chooseClassfys(index, id) {
+
+            this.classindex = index;
+            this.classify = id;
+        },
         //保存为经验方
         storeExpS() {
             console.log(this.datas2)
-            console.log(this.pwjjarr)
-            let drugCL = [],
-                drugArr = [];
+            // console.log(this.pwjjarr)
+
+            let [pwjjarrs, drugCL, drugArr] = [[], [], []]
+            let arrId = this.datas2.map((item, indexx) => {
+                return item.drug_id
+            })
+            this.pwjj.forEach((item, index) => {
+                let x = arrId.indexOf(item[0].id),
+                    y = arrId.indexOf(item[1].id);
+                if (x != -1 && y != -1) {
+                    pwjjarrs.push([this.pwjj[index][0].id, this.pwjj[index][1].id])
+                }
+            })
+
             this.datas2.forEach((item) => {
-                drugArr.push({ "code": item.drug_id, "num": item.num, "proceway": item.proce_way, "unit": item.unit })
+                drugArr.push({ "code": item.drug_id, "num": item.num, "proceway": item.type, "unit": item.unit })
                 if (item.max != 0 && item.num > item.max) {
                     console.log("超量")
                     drugCL.push({ "code": item.drug_id, "max": item.max })
                 }
             })
+            let _this = this;
+            // console.log(this.n)
+            // console.log(this.sid)
+            // console.log(this.type)
+            // console.log(drugCL)
+            // console.log(this.classify)
+            console.log(drugArr)
+            // console.log(pwjjarrs)
+            let params = {
+                "n": this.n,
+                'sup_id': this.sid,
+                'type': this.type,
+                'drugCL': drugCL,
+                'drugArr': drugArr,
+                'pwjj': pwjjarrs,
+                'classify': this.classify
+            }
+            axios.post('?do=saveexp', Qs.stringify(params))
+                .then((res) => {
+                    console.log(res)
+                    if (res.data.succ) {
+                        _this.showToast(res.data.msg);
+                    } else {
+                        _this.showToast(res.data.msg);
+                        // console.log(res.data.msg)
+                    }
 
-            let _this = this,
-                param = new FormData();
-            param.append('n', "新增经验方");
-            param.append('sup_id', this.sid);
-            param.append('type', this.type);
-            param.append('drugCL', drugCL);
-            param.append('drugArr', drugArr);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        },
+        // 计算价格
+        computedPrice() {
+            // console.log("===------------------------====")
+            this.datas2.forEach((item) => {
+                // console.log(item)
+                // this.drugprice = item.num * item.sprice
+            })
+        },
+        storeFangs(val) {
+            this.drugprice = val
+        },
+        pinkageSup() {
+            let _this = this;
+            axios.post('?do=pinkageSup'
+            ).then((res) => {
+                _this.pinkageSups = res.data;
+
+            }).catch((err) => {
+                console.log(err)
+                // _this.showToast('连接服务器失败');
+            })
+        },
+        ispinkageSupz() {
+            // if(type==1&&this.pinkageSups[1])
+            this.pinkageSups[1].forEach((item) => {
+                if (this.type == 1 && item == this.sid) {
+                    this.pinkageSupz = true
+                }
+            })
+        },
+
+        pinkageSupzet(bool) {
+            console.log(bool)
+            this.pinkageSupz = bool
+            console.log("是否显示" + this.pinkageSupz)
         },
         ...mapActions([
             'drugsData',
@@ -478,20 +601,18 @@ export default {
 
     },
 
-
-
     watch: {
 
-
     },
+
     mounted() {
         this.diseaseDatas = disease;
+        this.addTabooas();
+        this.pinkageSup();
+        this.ispinkageSupz();
 
-        // this.drugs = drugs;
-        // this.getDrugsData();
     },
     updated() {
-
     },
     computed: {
         // 全局共享的数据
@@ -502,7 +623,20 @@ export default {
             type: state => state.type,
             sid: state => state.defaults.supplier_id,
             pwjjarr: state => state.pwjjarr,
-        })
+            defaults: state => state.defaults,
+        }),
+        // 代煎费
+        decoctings(){
+            if(this.drugprice==0){
+                return Number(0).toFixed(2)
+            }else{
+                return ((this.defaults.proce_money)*this.data1num*this.data4num).toFixed(2)
+            }
+        },
+        // 满减优惠
+        subtrac99() {
+            return (Number(this.defaults.proce_money * this.data1num * this.data4num) + Number(this.defaults.give_money)).toFixed(2);
+        },
 
 
     },

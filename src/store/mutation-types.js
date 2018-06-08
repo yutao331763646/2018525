@@ -13,3 +13,4 @@ export const GET_DRUGS_DATA =  'GET_DRUGS_DATA';
 export const TYPE =  'TYPE';
 export const PWJJ =  'PWJJ';
 export const PWJJARR =  'PWJJARR';
+export const PHARMAVT_DATAAFTER =  'PHARMAVT_DATAAFTER';

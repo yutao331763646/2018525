@@ -124,6 +124,13 @@
             <mu-flat-button slot="actions" @click="closepwjj" primary label="取消" />
             <mu-flat-button slot="actions" primary @click="closepwjjok" label="确定" />
         </mu-dialog>
+
+        <mu-dialog :open="dialogpwjj2" title="配伍禁忌提醒" scrollable>
+            <mu-menu>
+                <mu-menu-item :title="item" v-for="(item,index) in dialogpwjj2val" :key="index" />
+            </mu-menu>
+            <mu-flat-button primary label="确定" @click="closedialogpwjj2" slot="actions" />
+        </mu-dialog>
     </div>
 </template>
 
@@ -171,6 +178,9 @@ export default {
             dialogpwjjarr: [],//单个输入时配伍禁忌的组合，用于渲染弹窗
             dialogpwjjarrid: [],//单个输入时配伍禁忌的组合，用于 传给后台
             valafterpwjj: {},//点击药品之后 把值存到这里  再根据弹出的选择确定要不要
+            dialogpwjj2: false,//到经验方时的配伍禁忌提醒
+            dialogpwjj2val: [],//到经验方时的配伍禁忌提醒内容
+
 
         }
     },
@@ -387,7 +397,8 @@ export default {
                         type: '',
                         drug_id: this.drugNameOks.drug_id,
                         is_abnormal: this.is_abnormal,
-                        max: this.drugNameOks.max
+                        max: this.drugNameOks.max,
+                        sprice: this.drugNameOks.sprice
                     })
                 } else {
                     this.showToast('药方里面已经有这味药啦！');
@@ -468,9 +479,15 @@ export default {
             this.dialogexplist = false
         },
         storeFang() {
-            console.log("保存方案")
+            // console.log("保存方案")
             this.$store.dispatch('istrue', false)
             this.adddatas2(this.drugNameOkLists)
+            let x = 0;
+            this.drugNameOkLists.forEach((item) => {
+                x += item.num * item.sprice
+            })
+            let y = Math.ceil(x * 100);
+            this.$emit("storeFange", (y / 100).toFixed(2))
         },
         chooseexps(id) {
             let _this = this,
@@ -480,147 +497,27 @@ export default {
             param.append("supid", _this.supid)
             axios.post('?do=toLeadExp', param
             ).then((res) => {
-                // console.log(res.data)
                 if (res.data.succ) {
+                    let arr5 = [];
+                    let dialogpwjjarrids = [];
+                    console.log(res)
                     res.data.sec.forEach((item) => {
-                        console.log(item)
-                        // arr为内部外导入的所有药  合并到一起；
-                        let arr = [];
-                        arr.push(item.drug_num)
-                        this.drugNameOkLists.forEach((item1) => {
-                            arr.push(item1.drug_id)
+                        let [arr2, idArr] = [[], []];
+
+                        // arr2所有的id
+                        arr2.push(item.drug_num)
+                        this.drugNameOkLists.forEach((itemN) => {
+                            arr2.push(itemN.drug_id);
+                            idArr.push(itemN.drug_id)
                         })
-
-
-                        // console.log(arr)
-                        // arr2 为所有药品对应的禁忌组合
-                        let arr2 = [];
-                        this.pwjj.forEach((itemX, index) => {
-                            itemX.forEach((itemO, indexO) => {
-                                if (item.drug_num == itemO.id) {
-                                    arr2.push(this.pwjj[index])
-                                }
-                            })
-                        });
-                        console.log(arr2)
-                        arr2.forEach((item2, indexx) => {
-                            arr.forEach((item5) => {
-                                console.log(item5, item2)
-                                if (item5 == item2[0].id) {
-                                    // console.log(8888)
-                                    this.$set(item, 'pwjj', item2[1])
-                                }
-                                if (item5 == item2[1].id) {
-                                    // console.log(99999)
-                                    this.$set(item, 'pwjj', item2[0])
-                                }
-                            })
-
-                        })
-                        // console.log(item)
-                        let drug = [{
-                            id: 1000,
-                            name: 'aaa',
-                            pwjj: [
-                                {
-                                    id: 1003,
-                                    name: 'ccc'
-                                }
-                            ]
-                        }, {
-                            id: 1001,
-                            name: 'bbb',
-                            pwjj: [
-                                {
-                                    id: 1004,
-                                    name: 'ddd'
-                                }
-                            ]
-                        }, {
-                            id: 1003,
-                            name: 'ccc',
-                            pwjj: [
-                                {
-                                    id: 1000,
-                                    name: 'aaa'
-                                }
-                            ]
-                        }, {
-                            id: 1004,
-                            name: 'ddd',
-                            pwjj: [
-                                {
-                                    id: 1001,
-                                    name: 'bbb'
-                                }, {
-                                    id: 1007,
-                                    name: 'eee'
-                                }
-                            ]
-                        }];
-
-                        let pwjj = [
-                            [
-                                {
-                                    id: 1000,
-                                    name: 'aaa'
-                                }, {
-                                    id: 1003,
-                                    name: 'ccc'
-                                }
-                            ], [
-                                {
-                                    id: 1001,
-                                    name: 'bbb'
-                                }, {
-                                    id: 1004,
-                                    name: 'ddd'
-                                }
-                            ]
-                        ]
-
-                        // let [arr, arr2] = [[], []];
-                        // this.pwjj.forEach((itemX, index) => {
-                        //     itemX.forEach((itemO, indexO) => {
-                        //         if (item.drug_num == itemO.id) {
-                        //             arr.push(this.pwjj[index])
-                        //         }
-                        //     })
-                        // });
-
-                        // //arr为当前添加进来的经验方所有的禁忌列表
-                        // //arr2为当前容器内的药品id
-                        // // console.log(arr)
-                        // this.drugNameOkLists.forEach((itemY, index) => {
-                        //     arr2.push(itemY.drug_id)
-                        // });
-
-                        // // console.log(this.drugNameOkLists)
-                        // // console.log(arr)
-                        // // 遍历取出经验方内的禁忌id  itemZ为单个禁忌组合 每个组合有2味药
-                        // arr.forEach((itemZ, index) => {
-                        //     console.log(itemZ)
-                        //     // 遍历取出单个组合内的药品id itemY为组合中的单个  
-                        //     itemZ.forEach((itemY) => {
-                        //         // 遍历取出容器内的 药品的id 用来和经验方内的id进行对比  itemT为容器内存在的id
-                        //         arr2.forEach((itemT,indexT) => {
-                        //             // console.log(itemT,itemO.id)
-                        //             // 如果容器内存在的id==
-                        //             if (itemT == item.drug_num) {
-                        //                 // console.log("禁忌")
-                        //                 // console.log(arr[index])
-                        //                 console.log(arr[index][0].name + "和" + arr[index][1].name + "配伍禁忌")
-
-                        //             }else{
-
-                        //             }
-                        //         })
-                        //     })
-                        // })
-
-                        let idArr = [];
-                        _this.drugNameOkLists.forEach((item1) => {
-                            idArr.push(item1.drug_id)
+                        this.pwjj.forEach((item1, index1) => {
+                            let x = arr2.indexOf(item1[0].id),
+                                y = arr2.indexOf(item1[1].id);
+                            if (x != -1 && y != -1) {
+                                arr5.push(this.pwjj[index1][0].name + "和" + this.pwjj[index1][1].name + "配伍禁忌")
+                                dialogpwjjarrids.push([this.pwjj[index1][0].id, this.pwjj[index1][1].id])
+                                this.dialogpwjj2 = true;
+                            }
                         })
                         if (idArr.indexOf(item.drug_num) == -1) {
                             _this.drugNameOkLists.push({
@@ -629,20 +526,29 @@ export default {
                                 sprice: item.price,
                                 unit: item.unit,
                                 drug_id: item.drug_num,
-                                max: item.max
+                                max: item.max,
+                                // sprice:item.price,
                             })
                         } else {
                             this.showToast("已删除重复的药材");
                         }
                     })
-
+                    this.dialogpwjj2val = Array.from(new Set(arr5))
+                    dialogpwjjarrids.forEach((itemO, indexO) => {
+                        this.pwjjarr(itemO)
+                    })
+                    // this.pwjjarr(dialogpwjjarrids)
                 } else {
                     _this.showToast(res.data.msg);
                 }
+                this.dialogexplist = false
             }).catch((err) => {
                 console.log(err);
                 _this.showToast('连接服务器失败');
             });
+        },
+        closedialogpwjj2() {
+            this.dialogpwjj2 = false
         }
     },
     mounted() {
@@ -785,6 +691,7 @@ export default {
         align-items: center;
         flex-direction: column;
         padding: 5px 0;
+        padding-left: 5px;
       }
       .custom_cuisor {
         display: block;

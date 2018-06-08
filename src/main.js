@@ -9,7 +9,7 @@ import '@/styles/base.css'
 import axios from 'axios'
 import Vuex from 'vuex'
 import store from './store/index'
-
+import Qs from 'qs'
 
 
 axios.defaults.baseURL = 'http://w.i.htyy.com/doctor_ajax.php'; //本地地址

@@ -199,7 +199,7 @@ export default {
 .search .mu-raised-button {
   height: 30px;
 }
-.footer {
+.selectusers .footer {
   position: fixed;
   bottom: 35px;
   width: 40%;
@@ -242,6 +242,7 @@ export default {
   border: 0;
   border-bottom: 1px solid #999;
   outline: none;
+ background: #fff;
 }
 .denger option {
   outline: none;

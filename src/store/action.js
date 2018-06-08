@@ -13,7 +13,8 @@ import {
     GET_DRUGS_DATA,
     TYPE,
     PWJJ,
-    PWJJARR
+    PWJJARR,
+    PHARMAVT_DATAAFTER
 } from './mutation-types.js'
 import axios from "axios";
 export default {
@@ -30,6 +31,7 @@ export default {
     pharmavyData({
         commit
     }, data) {
+        console.log()
         commit('TYPE', data)
         let url = '?do=getSupByTYPE&type=' + data
         axios
@@ -53,6 +55,10 @@ export default {
                 console.log(err);
             });
 
+    },
+    pharmavyDatass({commit},data){
+        console.log(data)
+        commit('PHARMAVT_DATAAFTER', data)
     },
     istrue({
         commit
