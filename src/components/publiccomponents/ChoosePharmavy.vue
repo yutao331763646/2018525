@@ -108,12 +108,16 @@ export default {
         },
         //保存选择的药房
         storePhar(position) {
-            this[position + 'Popup'] = false
+            this[position + 'Popup'] = false;
+            
             let base = 0;
             this.pinkageSups[1].forEach((item) => {
-
-                console.log(this.type, item, this.sid)
                 if (this.type == 1 && item == this.sid) {
+                    base += 1;
+                }
+            })
+            this.pinkageSups[2].forEach((item) => {
+                if (this.type == 2 && item == this.sid) {
                     base += 1;
                 }
             })
@@ -123,11 +127,6 @@ export default {
                 this.$emit('pinkageSupze', true);
             }
 
-            // this.pinkageSups[2].forEach((item) => {
-            //     if (this.type == 2 && item == this.sid) {
-            //         this.$emit('pinkageSupze', true)
-            //     } 
-            // })
 
         },
         clickType(index, type) {
