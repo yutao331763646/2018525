@@ -235,3 +235,26 @@
     margin-right: 10px;
     margin-top: 10px;
 }
+
+.totalprice .mu-item-after{
+    color: red;
+    font-size: 22px;
+}
+.redcoloe .mu-item-after{
+    color: red;
+}
+.yongfa{
+    height: 47px;
+}
+.yongfa .mu-content-block{
+    width: auto
+}
+.yongfa .mu-raised-button{
+    margin-right: 20px;
+    height: 30px;
+    min-width: 70px;
+}
+
+.addimg .mu-flat-button-label{
+    padding-top: 30px;
+}

@@ -488,6 +488,7 @@ export default {
             })
             let y = Math.ceil(x * 100);
             this.$emit("storeFange", (y / 100).toFixed(2))
+            this.$emit("ispinkageSupz")
         },
         chooseexps(id) {
             let _this = this,

@@ -7,6 +7,7 @@ Vue.use(Vuex)
 
 //创建Store实例
 const state = {
+    userinfo: {}, //用户姓名年龄性别
     datas: [],
     datas2: [], //选中保存的药品
     bool: false,
@@ -15,11 +16,14 @@ const state = {
         address: '',
         give_money: '',
         name: '',
-        offline_pay: '',
-        proce_money: '',
-        serve_money: '',
         service: '',
-        serviceArr: [],
+        serviceArr: {
+            1: {
+                offline_pay: '',
+                proce_money: '',
+                serve_money: ''
+            }
+        },
         supplier_id: ''
     },
     pharmavyData: {
@@ -27,11 +31,14 @@ const state = {
             address: '',
             give_money: '',
             name: '',
-            offline_pay: '',
-            proce_money: '',
-            serve_money: '',
             service: '',
-            serviceArr: [],
+            serviceArr: {
+                1: {
+                    offline_pay: '',
+                    proce_money: '',
+                    serve_money: ''
+                }
+            },
             supplier_id: ''
         },
         select: {}
@@ -39,7 +46,11 @@ const state = {
     toast: false,
     disableds: false,
     tuishow: true,
-    typeindex: 0, //取药方式
+    typeindex: 0, //取药方式的index
+    serviceType: {
+        name: '代煎代送',
+        type: 1
+    }, //配送方式
     drugsData: [
         {
             "id": "23302",
@@ -62,7 +73,7 @@ const state = {
     ],
     type: 1, //开方类型
     pwjj: ['dd'], //获取所有的配伍禁忌数组
-    pwjjarr:[],//要传给后台的配伍禁忌数组
+    pwjjarr: [], //要传给后台的配伍禁忌数组
 }
 const getters = {
     showLoading(state) {

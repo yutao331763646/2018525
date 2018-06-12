@@ -11,7 +11,7 @@
         <mu-divider/>
         <mu-row gutter class="users" v-if="searcjs">
             <mu-col width="50" v-for="(item,index) in userLists" :key="index">
-                <mu-raised-button :label="item|username" :primary="true" :secondary="active==index" @click="chooseUser(index,item.id)" :data-uid="item.id" />
+                <mu-raised-button id="userse" :label="item|username" :primary="true" :secondary="active==index" @click="chooseUser(index,item)" :data-uid="item.id" />
             </mu-col>
             <mu-col width="50">
                 <mu-raised-button label="新增" labelPosition="before" icon="add" primary @click.native="addNew()" />
@@ -85,6 +85,7 @@
 <script>
 import axios from "axios";
 import moment from "moment"
+import { mapState, mapActions } from 'vuex'
 export default {
     data() {
         return {
@@ -101,6 +102,7 @@ export default {
             userYear: '',
             sex: 1,
             dataBase: 365,
+            users: {},
         }
     },
     filters: {
@@ -109,10 +111,11 @@ export default {
         }
     },
     methods: {
-        chooseUser(index, uid) {
+        chooseUser(index, item) {
             this.active = index;
             this.isAdd = 0;
-            this.uid = uid
+            this.uid = item.id;
+            this.users = item;
         },
         search() {
             this.searcjs = true;
@@ -130,6 +133,7 @@ export default {
                     console.log(res.data)
                     if (res.data.succ) {
                         _this.userLists = res.data.sec;
+
                         _this.searcjs = true;
                         _this.news = false;
                         _this.uid = res.data.sec[0].id
@@ -165,8 +169,22 @@ export default {
             axios.post('?do=saveUserInfo',
                 param
             ).then((res) => {
-                console.log(res.data)
                 if (res.data.code == 1) {
+                    let str = '';
+                    if (this.dataBase == 365) {
+                        str = _this.sex + "岁"
+                    } else {
+                        str = _this.sex + "个月"
+                    }
+                    if (_this.uname) {
+                        this.userinfo({ username: _this.uname, age: _this.userYear, sex: str })
+                    } else {
+                        if (!_this.users.usename) {
+                            this.userinfo({ username: _this.userLists[0].usename, age: _this.userLists[0].age, sex: _this.userLists[0].sex2 })
+                        } else {
+                            this.userinfo({ username: _this.users.usename, age: this.users.age, sex: this.users.sex2 })
+                        }
+                    }
                     this.$router.push({ path: '/schemetype' })
                 } else if (res.data.code == 0) {
                     _this.showToast(res.data.msg);
@@ -185,6 +203,15 @@ export default {
             this.toast = false
             if (this.toastTimer) clearTimeout(this.toastTimer)
         },
+        ...mapActions([
+            'userinfo',
+
+        ]),
+    },
+    computed: {
+        ...mapState({
+            userinfos: state => state.userinfo
+        })
     }
 }
 </script>
@@ -226,6 +253,10 @@ export default {
   text-align: left;
   padding-left: 5px;
 }
+#userse .mu-raised-button-wrapper .mu-raised-button-label {
+  padding-right: 0px;
+  padding-left: 0px;
+}
 </style>
 
 <style scoped lang="less">
@@ -242,7 +273,7 @@ export default {
   border: 0;
   border-bottom: 1px solid #999;
   outline: none;
- background: #fff;
+  background: #fff;
 }
 .denger option {
   outline: none;
@@ -291,7 +322,7 @@ export default {
 .users {
   padding: 0 15px;
   .mu-raised-button {
-    min-width: 145px;
+    min-width: 165px;
     margin-top: 15px;
   }
 }

@@ -14,7 +14,8 @@ import {
     TYPE,
     PWJJ,
     PWJJARR,
-    PHARMAVT_DATAAFTER
+    PHARMAVT_DATAAFTER,
+    USERINFO
 } from './mutation-types.js'
 export default {
     ADD_DATAS(state, datas) {
@@ -27,7 +28,7 @@ export default {
         state.defaults = datas.default;
         state.pharmavyData = datas;
     },
-    PHARMAVT_DATAAFTER(state, datas){
+    PHARMAVT_DATAAFTER(state, datas) {
         state.pharmavyData = datas;
     },
     IS_TRUE(state, bool) {
@@ -55,24 +56,29 @@ export default {
         state.tuishow = bool
     },
     CHANGE_DEFAULTS(state, data) {
-        state.defaults =data
+        state.defaults = data
     },
-    TYPE_INDEX(state, data){
-        state.typeindex=data
+    TYPE_INDEX(state, {a, b}) {
+        state.typeindex = a;
+        state.serviceType = b
     },
-    GET_DRUGS_DATA(state, data){
-        state.drugsData=data
+    GET_DRUGS_DATA(state, data) {
+        state.drugsData = data
     },
-    TYPE(state, data){
-        state.type=data
+    TYPE(state, data) {
+        state.type = data
     },
-    PWJJ(state, data){
-        state.pwjj=data
+    PWJJ(state, data) {
+        state.pwjj = data
     },
-    PWJJARR(state, data){
-        
-        state.pwjjarr.push(data);
+    PWJJARR(state, data) {
 
+        state
+            .pwjjarr
+            .push(data);
 
+    },
+    USERINFO(state, data) {
+        state.userinfo = data
     }
 }

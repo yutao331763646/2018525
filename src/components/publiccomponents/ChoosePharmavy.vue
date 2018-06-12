@@ -6,11 +6,12 @@
             <mu-raised-button class="demo-raised-button" label="推荐其他药房" @click="openpopup('bottom')" />
         </mu-flexbox>
         <!--非弹出层 的默认选中药房 -->
-        <div class="pharmacylist" v-if="tuishow">
-            <img src="../../assets/erweima.png" alt="">
+        <div class="pharmacylist" v-if="tuishow" style="padding-left:10px;">
+            <mu-radio disabled :label="defaults.name"/>
+            <!-- <img src="../../assets/erweima.png" alt=""> -->
             <div>
-                <span>{{defaults.name}}</span>
-                <span>{{defaults.address}}</span>
+                <!-- <span>{{defaults.name}}</span> -->
+                <span style="padding-left:30px;">{{defaults.address}}</span>
             </div>
         </div>
         <mu-popup position="bottom" popupClass="recommended_pharmacy" :open="bottomPopup">
@@ -24,12 +25,16 @@
             </mu-flexbox>
             <mu-list>
                 <!-- 弹出层的药房 -->
-                <pharmacylist v-for="(item,index) in pharmavyDatas.select[num]" :text="item" :key="index" :class="{'actives':index ==checkindex }" @click.native="choosePhar(index,item)"></pharmacylist>
+                <div v-for="(item,index) in pharmavyDatas.select[num]" :key="index" class="pharmavyDataslist">
+
+                    <mu-radio :nativeValue="item.name"  :label="item.name"  name="group" v-model="value"  @click.native="choosePhar(index,item)"></mu-radio>
+                    <pharmacylist :text="item"/>
+                </div>
             </mu-list>
         </mu-popup>
         <!-- 非弹出层的默认配送方式 -->
         <mu-flexbox orient="horizontal" class="dis_type" v-if="tuishow" wrap="wrap">
-            <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item" :secondary="index==typeindexs" @click.native="chooseType(index)" />
+            <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item.name" :secondary="index==typeindexs" @click.native="chooseType(index,item)" />
         </mu-flexbox>
         <mu-toast v-if="toast" message="当前用药类型没有推荐药房" />
     </div>
@@ -39,10 +44,12 @@
 import pharmacylist from './PharmacyList.vue'
 import { mapState, mapActions } from 'vuex'
 import axios from "axios";
+import Qs from 'qs'
 export default {
     name: 'ChoosePharmavy',
     data() {
         return {
+            value: '',
             bottomPopup: false,
             checkindex: 50,// 初始化第一个栏块高亮
             server: {
@@ -78,7 +85,7 @@ export default {
                 let _this = this,
                     param = new FormData();
                 param.append('drug_code', this.datas2);
-                axios.post('?do=selectSup', param)
+                axios.post('?do=selectSup', Qs.stringify(param))
                     .then((res) => {
                         console.log(res)
                         this.pharmavyDatass(res.data.data);
@@ -109,7 +116,7 @@ export default {
         //保存选择的药房
         storePhar(position) {
             this[position + 'Popup'] = false;
-            
+
             let base = 0;
             this.pinkageSups[1].forEach((item) => {
                 if (this.type == 1 && item == this.sid) {
@@ -135,13 +142,15 @@ export default {
 
         },
         choosePhar(index, item) {
+            // console.log(item)
             this.changedefaults(item)
             this.checkindex = index
             console.log(this.defaults, item)
         },
-        chooseType(index) {
-            this.typeindex(index)
-            // this.typeindex = index
+        chooseType(index, item) {
+            // console.log(item.type)
+            this.$emit('peisong', item.type)
+            this.typeindex({ a: index, b: item })
         },
         ...mapActions([
             'changedefaults',
@@ -178,19 +187,14 @@ export default {
 
         }),
         serviceArrDefault() {
-            let server = {
-                1: '代煎代送',
-                2: '自煎代送',
-                3: '代煎自取',
-                4: '自取',
-                5: '送货上门',
-                6: '货到付款'
-            };
+
             let arr = [],
                 serviceArr = this.defaults.serviceArr;
-            if (serviceArr) {
-                serviceArr.forEach((item, index) => {
-                    arr.push(server[item])
+            let keys = Object.keys(serviceArr);
+            //  console.log(keys)
+            if (keys) {
+                keys.forEach((item, index) => {
+                    arr.push({ name: this.server[item], type: item })
                 });
             }
             return arr;
@@ -214,11 +218,13 @@ export default {
 }
 .pharmacylist {
   margin: 0 auto;
-  margin-top: 10px;
-  padding: 5px 10px;
-  display: flex;
-  border: 1px solid #ccc;
+//   margin-top: 10px;
+  padding: 0px 0 0 30px;
+  //   display: flex;
+//   border: 1px solid #ccc;
   width: 95%;
+  //   display: flex;
+  align-items: center;
   img {
     width: 1.8rem;
     height: 1rem;
@@ -229,6 +235,7 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin-left: 10px;
     span:first-of-type {
       font-size: 0.25rem;
       margin-bottom: 5px;
@@ -241,5 +248,10 @@ export default {
       text-align: left;
     }
   }
+}
+.pharmavyDataslist{
+    padding: 0 10px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #eee;
 }
 </style>

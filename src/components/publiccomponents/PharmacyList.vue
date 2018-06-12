@@ -1,8 +1,10 @@
 <template>
-    <div class="pharmacylist">
-        <img src="../../assets/erweima.png" alt="">
+    <div class="pharmacylist" @click="ted">
+        <!-- <img src="../../assets/erweima.png" alt=""> -->
+       <!-- <mu-radio nativeValue="simple2" v-model="value"></mu-radio> -->
+         <!-- <mu-radio :nativeValue="text.supplier_id" :label="text.name" v-model="value"></mu-radio> -->
         <div>
-            <span>{{text.name}}</span>
+            <!-- <span>{{text.name}}</span> -->
             <span>{{text.address}}</span>
         </div>
     </div>
@@ -15,24 +17,27 @@ export default {
             type: Object,
             default: {}
         },//子组件使用父组件的数据，我们需要通过子组件的props选项。
-    },
-    data() {
-        return {
 
+  
+    },
+        data() {
+            return {
+                value: this.text.supplier_id
+            }
+        },
+        methods: {
+            ted() {
+            }
         }
-    },
-    methods: {
-
     }
-}
 </script>
 <style scoped lang="less">
 .pharmacylist {
   margin: 0 auto;
-  margin-top: 10px;
-  padding: 5px 10px;
-  display: flex;
-  border: 1px solid #ccc;
+//   margin-top: 10px;
+ padding: 0px 0 0 30px;
+    display: flex;
+//   border: 1px solid #ccc;
   width: 95%;
   img {
     width: 1.8rem;

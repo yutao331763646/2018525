@@ -6,7 +6,8 @@
 		</mu-appbar> -->
         <mu-flexbox orient=vertical class="content">
             <!-- 输入患者姓名及年龄性别 -->
-            <mu-flexbox class="name proposal" orient="horizontal">
+            <div>{{this.userinfos.username+this.userinfos.sex+this.userinfos.age}}</div>
+            <!-- <mu-flexbox class="name proposal" orient="horizontal">
                 <mu-flexbox-item grow="0.6">
                     <mu-content-block class="username">用户</mu-content-block>
                 </mu-flexbox-item>
@@ -42,38 +43,44 @@
                         </mu-list>
                     </mu-dialog>
                 </mu-flexbox-item>
-            </mu-flexbox>
+            </mu-flexbox> -->
             <mu-divider/>
             <!-- 病症 -->
 
-            <mu-flexbox wrap="wrap">
+            <mu-flexbox wrap="wrap" v-if="updatedimgshow">
                 <mu-chip v-for="(item,index) in actives" :key="index" @delete="diseaseClose(index)" showDelete style="line-height:26px;margin-right:10px;margin-top:5px;margin-bottom:5px">
                     {{item}}
                 </mu-chip>
             </mu-flexbox>
-            <mu-flexbox class="disease_name proposal" orient="horizontal">
+            <mu-flexbox class="disease_name proposal" orient="horizontal" v-if="updatedimgshow">
                 <div class="seach_disease">
                     <input type="text" placeholder="请输入病症名" @input="handleInputdiseasecs" v-model="diseaseNamecs" ref="diseaseFocuscs">
                     <ul v-if="openDiseaseListcs">
-                        <li v-for="(item,index) in diseasescs" :key="index" @click="chooseDiseasecs(item)">{{item}}</li>
+                        <li v-for="(item,index) in diseasescs" :key="index" @click="chooseDiseasecs(item)">{{item.name}}</li>
                     </ul>
                 </div>
             </mu-flexbox>
+            <mu-divider v-if="updatedimgshow" />
 
-            <mu-divider/>
             <!-- 方案补充收费 -->
             <mu-flexbox class="f_nob proposal" orient="horizontal" @click.native="dialog3 = true">
                 <mu-content-block>方案补充收费</mu-content-block>
-                <mu-raised-button class="demo-raised-button" :label="price" labelPosition="before" icon="keyboard_arrow_right" />
+                <mu-raised-button class="demo-raised-button" :label="'￥'+price" labelPosition="before" icon="keyboard_arrow_right" />
                 <mu-dialog :open="dialog3" title="价格" @close="closefnob">
                     <mu-list>
                         <mu-list-item title="免费" @click="chooseonly('免费')">
                             <mu-icon slot="left" value="perm_identity" />
                         </mu-list-item>
-                        <mu-list-item title="￥10" @click="chooseonly('￥10')">
+                        <mu-list-item title="￥10" @click="chooseonly('10')">
                             <mu-icon slot="left" value="face" />
                         </mu-list-item>
-                        <mu-list-item title="￥20" @click="chooseonly('￥20')">
+                        <mu-list-item title="￥20" @click="chooseonly('20')">
+                            <mu-icon slot="left" value="face" />
+                        </mu-list-item>
+                        <mu-list-item title="￥50" @click="chooseonly('50')">
+                            <mu-icon slot="left" value="face" />
+                        </mu-list-item>
+                        <mu-list-item title="￥100" @click="chooseonly('100')">
                             <mu-icon slot="left" value="face" />
                         </mu-list-item>
                     </mu-list>
@@ -81,15 +88,15 @@
             </mu-flexbox>
             <mu-divider/>
             <!--用药建议标题 -->
-            <mu-flexbox class="proposl proposal">
+            <mu-flexbox class="proposl proposal" v-if="zhongyaopinpianshow">
                 <mu-content-block>用药建议： </mu-content-block>
                 <mu-raised-button class="demo-raised-button" label="保存为经验方" @click="getexpclassify" />
                 <!-- <mu-raised-button class="demo-raised-button" label="保存为经验方" @click="storeExpS" />  -->
             </mu-flexbox>
-            <mu-divider/>
+            <mu-divider v-if="zhongyaopinpianshow" />
         </mu-flexbox>
         <!-- 药品容器 -->
-        <mu-flexbox class="drugslist">
+        <mu-flexbox class="drugslist" v-if="zhongyaopinpianshow">
             <drugslist v-for="(item,index) in datas2" :propss="item" :key="index"></drugslist>
             <!-- <drugslist></drugslist> -->
         </mu-flexbox>
@@ -98,7 +105,7 @@
         <mu-flexbox orient=vertical class="content">
 
             <!-- 添加方案按钮 -->
-            <mu-flexbox class="add_af">
+            <mu-flexbox class="add_af" v-if="zhongyaopinpianshow">
                 <mu-raised-button label="添加方案" class="demo-raised-button" @click.native="openDrawerFang1" />
                 <mu-drawer right :open="openDrawerFang" @close="toggle()" class="mudrawer">
 
@@ -106,28 +113,42 @@
 
                 </mu-drawer>
             </mu-flexbox>
+            <mu-divider v-if="zhongyaopinpianshow" />
+            <div style="width:100%" v-if="updatedimgshow">
+                <mu-flexbox class="yongfa">
+                    <mu-content-block>用法： </mu-content-block>
+                    <mu-raised-button label="内服" :secondary="yongfa==0" @click="yongfac(0)" />
+                    <mu-raised-button label="外用" :secondary="yongfa==1" @click="yongfac(1)" />
+                </mu-flexbox>
+                <mu-divider/>
 
-            <mu-divider/>
-            <mu-flexbox orient="horizontal" class="proposal2">
-                <!-- <div @click="picker">点我选择</div> -->
-                <mu-content-block>共</mu-content-block>
-                <mu-raised-button :label="data1num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                <mu-content-block>贴，</mu-content-block>
-                <mu-raised-button :label="data2num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                <mu-content-block>日</mu-content-block>
-                <mu-raised-button :label="data3num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                <mu-content-block>贴，分</mu-content-block>
-                <mu-raised-button :label="data4num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                <mu-content-block>次服用</mu-content-block>
-            </mu-flexbox>
-            <mu-divider/>
+                <mu-flexbox v-if="waiyong">
+                    <mu-text-field v-model="method_out" ref="waiyonginput" hintText="请输入用法" multiLine :rows="1" :rowsMax="6" fullWidth class="beizhu" />
+                </mu-flexbox>
+                <mu-divider v-if="waiyong" />
+
+                <mu-flexbox orient="horizontal" class="proposal2" v-if="neifu">
+                    <!-- <div @click="picker">点我选择</div> -->
+                    <mu-content-block>共</mu-content-block>
+                    <mu-raised-button :label="data1num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
+                    <mu-content-block>贴，</mu-content-block>
+                    <mu-raised-button :label="data2num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
+                    <mu-content-block>日</mu-content-block>
+                    <mu-raised-button :label="data3num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
+                    <mu-content-block>贴，分</mu-content-block>
+                    <mu-raised-button :label="data4num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
+                    <mu-content-block>次服用</mu-content-block>
+                </mu-flexbox>
+                <mu-divider v-if="neifu" />
+            </div>
+
             <!-- 医嘱 -->
-            <mu-flexbox class="disease_name proposal yizhu" orient="horizontal" @click.native="toggle()">
+            <mu-flexbox class="disease_name proposal yizhu" orient="horizontal" @click.native="toggle()" v-if="updatedimgshow">
                 <mu-content-block>医嘱</mu-content-block>
                 <mu-raised-button :label="yiZhu" labelPosition="before" icon="keyboard_arrow_right" />
 
             </mu-flexbox>
-            <mu-divider/>
+            <mu-divider v-if="updatedimgshow" />
             <mu-drawer right :open="openDrawer" class="mudrawer">
                 <mu-appbar title="医嘱">
                     <mu-icon-button icon="keyboard_arrow_left" slot="left" @click.native="openDrawer = false" />
@@ -172,48 +193,71 @@
                 </mu-list>
             </mu-drawer>
             <!-- 购药前处方是否可见 -->
-            <mu-flexbox class="disease_name proposal" orient="horizontal" @click.native="isitvisible">
+            <mu-flexbox class="disease_name proposal" orient="horizontal" @click.native="isitvisible" v-if="zhongyaopinpianshow">
                 <mu-content-block>购药前处方是否可见</mu-content-block>
                 <mu-raised-button class="demo-raised-button" label="不可见" labelPosition="before" icon="keyboard_arrow_right" />
-                <mu-dialog :open="dialogisitvisible" title="购药前处方是否可见" @close="close">
+                <mu-dialog :open="dialogisitvisible" title="购药前处方是否可见">
                     <mu-list>
                         <mu-list-item title="可见" @click="chooseisitvisible('可见')"></mu-list-item>
                         <mu-list-item title="不可见" @click="chooseisitvisible('不可见')"></mu-list-item>
                     </mu-list>
                 </mu-dialog>
             </mu-flexbox>
-            <mu-divider/>
-            <mu-flexbox>
-                <mu-text-field hintText="输入备注" multiLine :rows="1" :rowsMax="6" fullWidth class="beizhu" />
+            <mu-divider v-if="zhongyaopinpianshow" />
+            <mu-flexbox v-if="updatedimgshow">
+                <mu-text-field v-model="advise" hintText="输入备注" multiLine :rows="1" :rowsMax="6" fullWidth class="beizhu" />
             </mu-flexbox>
-            <mu-divider/>
+            <mu-divider v-if="updatedimgshow" />
         </mu-flexbox>
 
         <mu-flexbox orient="vertical" class="tuijya">
             <!-- 推荐药房的弹出 -->
-            <ChoosePharmavy @pinkageSupze="pinkageSupzet" />
+            <ChoosePharmavy @pinkageSupze="pinkageSupzet" @peisong="peisongs" v-if="isShowT" />
+
+            <mu-flexbox wrap="wrap" v-if="updatedimgshow" class="imagesee">
+                <mu-paper :zDepth="1" class="addimg" v-if="addimginp">
+                    <mu-icon value="add" :size="36" class="addicon" />
+                    <mu-flat-button label="添加图片" class="demo-flat-button">
+                        <input type="file" @change='add_img' class="file-button">
+                    </mu-flat-button>
+                </mu-paper>
+
+                <mu-paper class="shiliimg" v-if="imgshili">
+                    <img src="../../../static/images/shili.png" alt="">
+                </mu-paper>
+
+                <mu-paper class="shiliimg absed" v-for="(item,index) in imgsrcs" :key="index">
+                    <img :src="item" alt="">
+                    <mu-icon value="remove_circle" color="red" :size="24" class="deleget" @click="deleteimg(index)" />
+                </mu-paper>
+
+            </mu-flexbox>
 
             <!-- 价格列表 -->
             <mu-flexbox>
                 <mu-list class="pricelist">
                     <mu-list-item title="费用明细" />
                     <mu-divider/>
-                    <mu-list-item title="方案补充收费" afterText="￥0" />
+                    <mu-list-item title="方案补充收费" :afterText="'￥'+Number(price).toFixed(2)" />
                     <mu-divider/>
                     <mu-list-item title="药费" :afterText="'单贴￥'+drugprice+ 'X 帖数'+data1num+' = ￥'+(drugprice*data1num).toFixed(2)" />
                     <mu-divider/>
                     <mu-list-item title="代煎费" :afterText="'帖数'+data1num +'X '+data4num+'包 = ￥'+decoctings" />
                     <mu-divider/>
-                    <mu-list-item title="代送费" :afterText="'￥'+defaults.give_money" />
+                    <mu-list-item title="代送费" :afterText="'￥'+defaults.serviceArr[serviceType.type].give_money" />
                     <mu-divider/>
-                    <mu-list-item v-if="pinkageSupz" title="优惠" describeText="供应商专属优惠满99包邮" :afterText="'￥-'+subtrac99" />
+                    <mu-list-item v-if="pinkageSupz" title="供应商专属优惠满99包邮" :afterText="'￥- '+subtrac99" class="redcoloe"/>
                     <mu-divider v-if="pinkageSupz" />
-                    <mu-list-item title="总计" afterText="￥280.00" />
+
+                    <mu-list-item v-if="sup_discountsz" :title="defaults.discounts.name" :afterText="'￥'+sup_discounts.toFixed(2)"  class="redcoloe"/>
+                    <mu-divider v-if="sup_discountsz" />
+
+                    <mu-list-item title="总计" :afterText="'￥'+totalprice" class="totalprice" />
                 </mu-list>
             </mu-flexbox>
 
             <mu-flexbox class="submissions">
-                <mu-raised-button label="完成" secondary/>
+                <mu-raised-button label="完成" secondary @click="submissions" />
             </mu-flexbox>
         </mu-flexbox>
         <mu-toast v-if="toast" :message="toastMsg" @close="hideToast" />
@@ -249,6 +293,7 @@ import axios from "axios";
 import { mapState } from 'vuex'
 import { mapActions } from 'vuex'
 import Qs from 'qs'
+import { setTimeout } from 'timers';
 export default {
     name: "Proposal",
     data() {
@@ -256,11 +301,11 @@ export default {
             diseaseDatas: [],//病症库
             // drugs: [],//药品库
             bottomNav: 'recents',
-            dialog: false,
-            dialog2: false,
+            // dialog: false,
+            // dialog2: false,
             dialog3: false,
             dialogisitvisible: false,
-            price: "￥20",
+            price: "20",
             data1num: "5",
             data2num: '1',
             data3num: '1',
@@ -294,8 +339,24 @@ export default {
                 '2': ['059107']
             },//满减活动的供应商id
             pinkageSupz: false,//当前供应商是否满减
-
-
+            yongfa: 0,//内服OR外用
+            waiyong: false,
+            neifu: true,
+            diseaseIdarr: [],//病症id数组
+            diseaseId: '',//病症ID
+            taboo: '无',//禁忌与忌口  给后台的
+            advise: '',//备注
+            eat_time: '',//服用时间
+            method_out: '',//外用方法
+            is_show: 0,//处方是否可见
+            peisonged: 1,//服务id 
+            // sup_discountsz: true,//供应商优惠是否显示
+            imgsrcs: [],//上传图片的base64集合
+            imgshili: true,//图片上传的示例图片,当上传图片大于0的时候 隐藏
+            addimginp: true,//上传图片的按钮，当上传图片大于3的时候 隐藏
+            imgArr: [],//拍照方图片地址数组
+            // updatedimgshow: false,//上传图片的显隐
+            // zhongyaopinpianshow: true,
         }
     },
     filters: {
@@ -311,17 +372,7 @@ export default {
         handleChange(val) {
             this.bottomNav = val;
         },
-        // 关闭性别选择弹窗
-        closenv() {
-            console.log(this.$store.state.datas)
-            this.dialog = false
-            console.log("关闭性别选择弹窗")
-        },
-        //  关闭年龄弹窗
-        close() {
-            this.dialog2 = false
-            console.log("关闭年龄弹窗")
-        },
+
         //  方案补充收费弹窗
         closefnob() {
             this.dialog3 = false
@@ -347,11 +398,15 @@ export default {
         },
 
         isitvisible() {
-            console.log("是否可见")
             this.dialogisitvisible = true
         },
         chooseisitvisible(val) {
             console.log(val)
+            if (val == "可见") {
+                this.is_show = 1
+            } else {
+                this.is_show = 0
+            }
             this.dialogisitvisible = false
         },
 
@@ -372,10 +427,30 @@ export default {
         yiZhuInput() {
             console.log("让医嘱输入框获取焦点")
         },
+        yongfac(num) {
+            this.yongfa = num;
+            if (num) {
+                this.waiyong = true;
+                this.neifu = false;
+                setTimeout(() => {
+                    this.$refs.waiyonginput.focus();
+                }, 150)
+
+            } else {
+                this.waiyong = false;
+                this.neifu = true
+            }
+        },
+        peisongs(val) {
+            this.peisonged = val
+            // console.log(val)
+        },
         addTime(val, index) {
             this.valueYi = val;
             this.timeactive = index;
             this.addTabooas();
+            this.eat_time = val;
+
         },
         addTaboo(val, indexs) {
             this.tabooactive.forEach((item, index) => {
@@ -383,16 +458,20 @@ export default {
                     if (this.tabooactive[indexs]) {
                         this.tabooactive.splice(indexs, 1, false)
                         this.valueYi = this.valueYi.replace('，' + val, '')
+                        this.taboo = this.taboo.replace('，' + val, '')
                     } else {
                         if (!this.valueYi) {
                             this.valueYi = val
+                            this.taboo = val
                         } else {
                             this.valueYi = this.valueYi + "，" + val
+                            this.taboo = this.taboo + "，" + val
                         }
                         this.tabooactive.splice(indexs, 1, true)
                     }
                 }
             })
+            console.log(this.taboo)
         },
         addTabooas() {
             this.tabooactive = this.taboos.map((item, index) => {
@@ -413,25 +492,31 @@ export default {
                 arrCh.push(item.name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, "").indexOf(this.diseaseNamecs))
                 arrEn.push(item.name_spell.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, "").indexOf(this.diseaseNamecs.toUpperCase()))
             })
+            // let cesiarr = [];
             arrCh.forEach((item, index) => {
                 if (arrCh[index] != -1) {// 如果是用户输入的是中文 
-                    arrFinal.push(this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""));
+                    arrFinal.push({ name: this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""), id: this.diseaseDatas[index].id })
+                    // arrFinal.push(this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""));
                 } else if (arrEn[index] != -1) {//如果用户输入的是英文
-                    arrFinal.push(this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""));
+                    // arrFinal.push(this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""));
+                    arrFinal.push({ name: this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""), id: this.diseaseDatas[index].id })
                 }
             })
             this.diseasescs = arrFinal;
+            console.log(this.diseasescs)
             if (!this.diseaseNamecs) {
                 this.openDiseaseListcs = false
             }
         },
         //  点击下拉的病症名
         chooseDiseasecs(val) {
-            this.actives.push(val);
+            this.actives.push(val.name);
             this.actives = Array.from(new Set(this.actives));
             this.openDiseaseListcs = false;
             this.diseaseNamecs = '';
             this.$refs.diseaseFocuscs.focus()
+            this.diseaseIdarr.push(val.id);
+            this.diseaseId = this.diseaseIdarr.join(",")
         },
         diseaseClose(index) {
             console.log(index)
@@ -568,6 +653,7 @@ export default {
         },
         storeFangs(val) {
             this.drugprice = val
+
         },
         pinkageSup() {
             let _this = this;
@@ -581,18 +667,192 @@ export default {
             })
         },
         ispinkageSupz() {
-            // if(type==1&&this.pinkageSups[1])
+            let base = 0;
+            // 是否显示优惠
             this.pinkageSups[1].forEach((item) => {
                 if (this.type == 1 && item == this.sid) {
-                    this.pinkageSupz = true
+                    base += 1;
                 }
-            })
+            });
+            this.pinkageSups[2].forEach((item) => {
+                if (this.type == 2 && item == this.sid) {
+                    base += 1;
+                }
+            });
+            if (base == 0) {
+                this.pinkageSupz = false
+            } else {
+                this.pinkageSupz = true
+            };
+
         },
 
         pinkageSupzet(bool) {
             console.log(bool)
             this.pinkageSupz = bool
             console.log("是否显示" + this.pinkageSupz)
+        },
+        add_img(e) {
+            let file = e.target.files[0];
+            this.drawOnCanvas(file, 'head_img1');
+        },
+        drawOnCanvas(file) {
+            let reader = new FileReader();
+            reader.onload = (e) => {
+                let dataURL = e.target.result,
+                    canvas = document.createElement('canvas'),
+                    ctx = canvas.getContext('2d'),
+                    img = new Image();
+                console.log(555)
+                img.onload = () => {
+                    let w = img.width,
+                        h = img.height;
+                    canvas.width = w / 2;
+                    canvas.height = h / 2;
+                    let context = canvas.getContext('2d');
+                    context.drawImage(img, 0, 0, w / 2, h / 2);
+                    let base64 = canvas.toDataURL('image/jpeg', 1),
+                        param = new FormData();
+                    console.log(base64)
+                    param.append('base64', base64);
+                    axios.post('?do=doctorimgup', param)
+                        .then((res) => {
+                            console.log(res)
+                            if (res.data.succ) {
+                                this.imgsrcs.push(base64);
+                                this.isShowAddImg();
+                                this.imgArr.push(res.data.sec)
+                            }
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });
+                }
+                img.src = dataURL;
+            }
+            reader.readAsDataURL(file);
+        },
+        deleteimg(index) {
+            this.imgsrcs.splice(index, 1)
+            this.imgArr.splice(index, 1)
+            this.isShowAddImg();
+        },
+        isShowAddImg() {
+            let len = this.imgsrcs.length;
+            if (len > 0) {
+                this.imgshili = false
+            } else {
+                this.imgshili = true
+            }
+            if (len > 2) {
+                this.addimginp = false
+            } else {
+                this.addimginp = true
+            }
+        },
+        submissions() {
+            let disease = this.actives.join(",")
+            let useage = this.data1num + "," + this.data2num + "," + this.data3num + "," + this.data4num
+            // let sup_discounts = 0;
+            // sup_discounts = -((1 - Number(this.defaults.discounts.point)) * (this.drugprice * this.data1num)).toFixed(2)
+            // console.log(this.defaults)
+
+            let [pwjjarrs, drugCL, drugArr] = [[], [], []]
+            let arrId = this.datas2.map((item, indexx) => {
+                return item.drug_id
+            })
+            this.pwjj.forEach((item, index) => {
+                let x = arrId.indexOf(item[0].id),
+                    y = arrId.indexOf(item[1].id);
+                if (x != -1 && y != -1) {
+                    pwjjarrs.push([this.pwjj[index][0].id, this.pwjj[index][1].id])
+                }
+            })
+
+            this.datas2.forEach((item) => {
+                drugArr.push({ "code": item.drug_id, "num": item.num, "proceway": item.type, "unit": item.unit })
+                if (item.max != 0 && item.num > item.max) {
+                    console.log("超量")
+                    drugCL.push({ "code": item.drug_id, "max": item.max })
+                }
+            })
+            // 中药饮片的参数
+            let params = {
+                data:
+                    {
+                        "diseaseId": this.diseaseId,//ok
+                        'disease': disease,//ok
+                        'type': this.type,//ok
+                        'useage': useage,//ok
+                        'taboo': this.taboo,//ok
+                        'advise': this.advise,//ok
+                        'use_type': this.yongfa,//ok
+                        'eat_time': this.eat_time,//ok
+                        'method_out': this.method_out,//ok
+                        'is_show': this.is_show,//ok
+                        'peisong': this.peisonged,//ok
+                        'su_id': this.sid,//ok
+                        'd_m': (this.drugprice * this.data1num).toFixed(2),//ok
+                        'p_m': this.decoctings,//ok
+                        'drug_type': this.type,//ok
+                        'g_m': this.defaults.serviceArr[this.serviceType.type].give_money,//ok
+                        'cost_money': this.price,//ok
+                        'allTotal': this.totalprice,//ok
+                        'cheap_money': this.subtrac99,//ok
+                        'JGMoney': 0,//加工费
+                        'discounts_id': this.defaults.discounts.id,//ok
+                        'sup_discounts': this.sup_discounts,//ok
+                        'sup_discounts_name': this.defaults.discounts.name,//ok
+
+
+                        'drugCL': drugCL,//ok
+                        'drugArr': drugArr,//ok
+                        'pwjj': pwjjarrs,//ok
+
+                        'isTest': 'isTest'
+                    }
+            }
+            let params2 = {
+                "costMoney": this.price,//ok
+                "imgArr": this.imgArr,//ok
+                "drug_type": this.type,//ok
+                "diseaseId": this.diseaseId,//ok
+                "disease": disease,//ok"
+                "useage": useage,//ok
+                "taboo": this.taboo,//ok
+                "advise": this.advise,//ok
+                "eat_time": this.eat_time,//ok
+                "use_type": this.yongfa,//ok
+                "method_out": this.method_out,//ok
+                "supid": this.sid,//ok
+                "service": this.peisonged,//ok
+
+
+
+            }
+            if (this.type == -1) {
+                axios.post('?do=KFPicturesPrescribe', Qs.stringify(params2))
+                    .then((res) => {
+                        console.log(res.data)
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            } else {
+
+                axios.post('?do=KFprescribe', Qs.stringify(params))
+                    .then((res) => {
+                        console.log(res.data)
+
+
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
+
+
+
         },
         ...mapActions([
             'drugsData',
@@ -613,6 +873,7 @@ export default {
 
     },
     updated() {
+        //    this.ispinkageSupz();
     },
     computed: {
         // 全局共享的数据
@@ -624,20 +885,73 @@ export default {
             sid: state => state.defaults.supplier_id,
             pwjjarr: state => state.pwjjarr,
             defaults: state => state.defaults,
+            serviceType: state => state.serviceType,
+            userinfos: state => state.userinfo
         }),
+        // 是否显示供应商优惠
+        sup_discountsz() {
+            let bool = this.defaults.discounts;
+            if (bool) {
+                return true
+            } else {
+                return false
+            }
+        },
         // 代煎费
-        decoctings(){
-            if(this.drugprice==0){
+        decoctings() {
+            console.log(this.defaults.serviceArr[this.serviceType.type].proce_money)
+            if (this.drugprice) {
+                return ((this.defaults.serviceArr[this.serviceType.type].proce_money) * this.data1num * this.data4num).toFixed(2)
+            } else {
                 return Number(0).toFixed(2)
-            }else{
-                return ((this.defaults.proce_money)*this.data1num*this.data4num).toFixed(2)
             }
         },
         // 满减优惠
         subtrac99() {
-            return (Number(this.defaults.proce_money * this.data1num * this.data4num) + Number(this.defaults.give_money)).toFixed(2);
+            if (this.drugprice * this.data1num > 99) {
+                return (Number(this.defaults.serviceArr[this.serviceType.type].proce_money * this.data1num * this.data4num) + Number(this.defaults.serviceArr[this.serviceType.type].give_money)).toFixed(2);
+            } else {
+                return Number(0).toFixed(2)
+            }
         },
-
+        //供应商优惠
+        sup_discounts() {
+            return -((1 - Number(this.defaults.discounts.point)) * (this.drugprice * this.data1num)).toFixed(2)
+        },
+        // 总价
+        totalprice() {
+            if (this.drugprice == 0) {
+                return Number(0).toFixed(2)
+            } else {
+                if (this.pinkageSupz) {
+                    return (Number(this.price) + Number(this.drugprice * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) - Number(this.subtrac99) + Number(this.sup_discounts)).toFixed(2)
+                } else {
+                    return (Number(this.price) + Number(this.drugprice * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) + Number(this.sup_discounts)).toFixed(2)
+                }
+            }
+        },
+        // 是否显示推荐药房
+        isShowT() {
+            if (this.drugprice) {
+                return true
+            } else {
+                return true
+            }
+        },
+        updatedimgshow() {
+            if (this.type == -1) {
+                return true
+            } else {
+                return false
+            }
+        },
+        zhongyaopinpianshow() {
+            if (this.type == -1) {
+                return false
+            } else {
+                return true
+            }
+        }
 
     },
     components: {

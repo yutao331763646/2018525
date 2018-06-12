@@ -22,7 +22,7 @@
                         <span>病症：</span>
                         <span>{{item.norm_disease}}</span>
                     </mu-list-item>
-                    <mu-list-item class="list">
+                    <mu-list-item class="list"> 
                         <span>医嘱：</span>
                         <span>{{item.taboo}}</span>
                     </mu-list-item>
@@ -38,7 +38,7 @@
         </mu-flexbox>
         <mu-flexbox class="tuijya">
             <!-- 推荐药房及弹出层 -->
-            <ChoosePharmavy />
+            <ChoosePharmavy   @pinkageSupze="pinkageSupzet"  />
         </mu-flexbox>
         <mu-flexbox class="nextstep" @click.native="goProposal">
             <!-- 跳到开方页面 -->
@@ -143,6 +143,15 @@ export default {
                     console.log(err);
                 });
         },
+         pinkageSupzet(bool) {
+            console.log(bool)
+            this.pinkageSupz = bool
+            console.log("是否显示" + this.pinkageSupz)
+        },
+        // serviceTypeto(item) {
+        //     this.$emit('serviceTypee',item)
+          
+        // },
         ...mapActions([
             'pharmavyData',
             'type'

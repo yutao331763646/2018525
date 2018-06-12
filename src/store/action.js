@@ -14,7 +14,8 @@ import {
     TYPE,
     PWJJ,
     PWJJARR,
-    PHARMAVT_DATAAFTER
+    PHARMAVT_DATAAFTER,
+    USERINFO
 } from './mutation-types.js'
 import axios from "axios";
 export default {
@@ -37,7 +38,31 @@ export default {
         axios
             .get(url)
             .then((res) => {
+                console.log(res)
                 if (res.data.code == 1) {
+                    console.log(res.data.data.default.serviceArr)
+                    let server = {
+                        1: '代煎代送',
+                        2: '自煎代送',
+                        3: '代煎自取',
+                        4: '自取',
+                        5: '送货上门',
+                        6: '货到付款',
+                        '-1': '门店结算'
+                    };
+                    let keys = Object.keys(res.data.data.default.serviceArr);
+                    let arr = [];
+                    if (keys) {
+                        keys.forEach((item, index) => {
+                            arr.push({name: server[item], type: item})
+                        })
+                    }
+                    commit('TYPE_INDEX', {
+                        a: 0,
+                        b: arr[0]
+                    })
+                    console.log(arr[0])
+
                     commit('PHARMAVT_DATA', res.data.data);
                     commit('DISABLEDS', false)
                     commit('TUISHOW', true)
@@ -56,7 +81,9 @@ export default {
             });
 
     },
-    pharmavyDatass({commit},data){
+    pharmavyDatass({
+        commit
+    }, data) {
         console.log(data)
         commit('PHARMAVT_DATAAFTER', data)
     },
@@ -96,9 +123,14 @@ export default {
                 console.log(err);
             });
     },
-    pwjjarr:({
+    pwjjarr : ({
         commit
-    }, data)=>{
+    }, data) => {
         commit('PWJJARR', data)
+    },
+    userinfo : ({
+        commit
+    }, data) => {
+        commit('USERINFO', data)
     }
 }
