@@ -403,15 +403,18 @@ export default {
                 } else {
                     this.showToast('药方里面已经有这味药啦！');
                 }
+                this.customCuisor = true;//简拼的光标显示
+                this.drugNameJpremind = true;//显示  '请输入简拼'
+                this.drugNameOk = false;//药品隐藏
+                this.customCuisorNum = false;
+                this.drugunitNum = '';
+                this.keyboardCh = false;
+                this.keyboardEn = true;
+                this.is_abnormal = 0;
+                this.numOklActive=false
+            } else {
+                this.showToast('请输入药品重量');
             }
-            this.customCuisor = true;//简拼的光标显示
-            this.drugNameJpremind = true;//显示  '请输入键盘'
-            this.drugNameOk = false;//药品隐藏
-            this.customCuisorNum = false;
-            this.drugunitNum = '';
-            this.keyboardCh = false;
-            this.keyboardEn = true;
-            this.is_abnormal = 0;
         },
 
         // 打开选择煎法弹出

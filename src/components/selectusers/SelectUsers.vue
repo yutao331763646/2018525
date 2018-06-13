@@ -23,16 +23,6 @@
                 <mu-flat-button label="新增用户" class="addnews" />
             </mu-col>
             <mu-col width="100">
-                <!-- <mu-row gutter>
-                    <mu-col width="30">
-                        <mu-content-block>
-                            手机号
-                        </mu-content-block>
-                    </mu-col>
-                    <mu-col width="70">
-                        <mu-text-field hintText="请输入手机号" />
-                    </mu-col>
-                </mu-row> -->
                 <mu-row gutter>
                     <mu-col width="30">
                         <mu-content-block>
@@ -85,7 +75,9 @@
 <script>
 import axios from "axios";
 import moment from "moment"
+import Qs from 'qs'
 import { mapState, mapActions } from 'vuex'
+import { setTimeout } from 'timers';
 export default {
     data() {
         return {
@@ -117,13 +109,51 @@ export default {
             this.uid = item.id;
             this.users = item;
         },
+        
+        signCFFF() {
+            let params = {
+                "test": 1
+            }
+            axios.post('?do=repeatOrder', Qs.stringify(params))
+                .then((res) => {
+                    if (res.data.code) {
+                        console.log(res.data)
+                        this.repeatOrder(res.data)
+                        // console.log(res.data.data)
+                        // 重方：为原用户提供相同的用药建议，所有的信息都有（病症，用药时间，医嘱）
+                        // 复方：为新用户提供相同的用药建议，除了用户信息，其他信息都有
+                        // 如果有用户信息  为重方
+                        if (res.data.cfORff == "cf") {
+                            console.log("重方")
+                            // console.log(res.data.data.userInfo)
+                            let orther = res.data.data.userInfo.orther;
+                            this.searcjs = true;
+                            this.userLists = orther;//渲染所有数据
+                            // 设置一些初始化的默认值
+                            this.userNum = orther[0].mobile;
+                            this.uid = orther[0].id;
+                          
+
+                        } else {
+                            console.log("复方")
+                        }
+                        // console.log("重方复方")
+                    } else {
+                        console.log("正常开方，不作特殊操作")
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                     this.showToast('连接服务器失败！');
+                });
+        },
         search() {
             this.searcjs = true;
             // this.news = false;
             let _this = this,
                 param = new FormData();
             if (!(/^1[345789]\d{9}$/.test(_this.userNum))) {
-                _this.showToast('请输入正确的手机号码！');
+                this.showToast('请输入正确的手机号码！');
                 _this.$refs.inputs.focus()
             } else {
                 param.append('tel', _this.userNum);
@@ -132,6 +162,7 @@ export default {
                 ).then((res) => {
                     console.log(res.data)
                     if (res.data.succ) {
+
                         _this.userLists = res.data.sec;
 
                         _this.searcjs = true;
@@ -159,39 +190,63 @@ export default {
         nextStep() {
             let _this = this,
                 param = new FormData(),
-                birthday = moment(moment().subtract(_this.userYear * _this.dataBase, 'day').calendar()).format('YYYYMMDD');
-            param.append('uid', _this.uid);
-            param.append('isAdd', _this.isAdd);
-            param.append('tel', _this.userNum);
-            param.append('uname', _this.uname);
+                birthday = moment(moment().subtract(this.userYear * this.dataBase, 'day').calendar()).format('YYYYMMDD');
+            param.append('uid', this.uid);
+            param.append('isAdd', this.isAdd);
+            param.append('tel', this.userNum);
+            param.append('uname', this.uname);
             param.append('birthday', birthday);
-            param.append('sex', _this.sex);
+            param.append('sex', this.sex);
             axios.post('?do=saveUserInfo',
                 param
             ).then((res) => {
                 if (res.data.code == 1) {
                     let str = '';
                     if (this.dataBase == 365) {
-                        str = _this.sex + "岁"
+                        str = this.sex + "岁"
                     } else {
-                        str = _this.sex + "个月"
+                        str = this.sex + "个月"
                     }
-                    if (_this.uname) {
-                        this.userinfo({ username: _this.uname, age: _this.userYear, sex: str })
+                    if (this.uname) {
+                        // console.log("如果是新增用户")
+                        //如果是新增用户
+                        this.userinfo({
+                            username: this.uname,
+                            age: this.userYear,
+                            sex: str
+                        });
                     } else {
-                        if (!_this.users.usename) {
-                            this.userinfo({ username: _this.userLists[0].usename, age: _this.userLists[0].age, sex: _this.userLists[0].sex2 })
+                        if (!this.users.usename) {
+                            // console.log("没有点击，选择默认第一个")
+                            //没有点击，选择默认第一个
+                             console.log(this.userLists)
+                            this.userinfo({
+                                username: this.userLists[0].usename,
+                                age: this.userLists[0].age,
+                                sex: this.userLists[0].sex2
+                            });
                         } else {
-                            this.userinfo({ username: _this.users.usename, age: this.users.age, sex: this.users.sex2 })
+                            // console.log("点击选择其他患者")
+                            // 点击选择其他患者
+                            this.userinfo({
+                                username: this.users.usename,
+                                age: this.users.age,
+                                sex: this.users.sex2
+                            });
                         }
                     }
                     this.$router.push({ path: '/schemetype' })
                 } else if (res.data.code == 0) {
-                    _this.showToast(res.data.msg);
+                    this.showToast(res.data.msg);
                 }
             }).catch((err) => {
-                _this.showToast('连接服务器失败');
+                this.showToast('连接服务器失败');
             })
+            setTimeout(() => {
+
+                console.log(this.userinfos)
+            }, 100)
+            console.log(this.userLists)
         },
         showToast(msg) {
             this.toast = true
@@ -205,8 +260,12 @@ export default {
         },
         ...mapActions([
             'userinfo',
+            'repeatOrder'
 
         ]),
+    },
+    mounted() {
+        this.signCFFF();
     },
     computed: {
         ...mapState({

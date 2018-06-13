@@ -6,7 +6,7 @@
             <mu-raised-button class="demo-raised-button" label="推荐其他药房" @click="openpopup('bottom')" />
         </mu-flexbox>
         <!--非弹出层 的默认选中药房 -->
-        <div class="pharmacylist" v-if="tuishow" style="padding-left:10px;">
+        <div class="pharmacylist" v-if="tuishow" style="padding-left:10px;border:1px solid #ccc;padding: 5px 0 5px 20px;width:100%;">
             <mu-radio disabled :label="defaults.name"/>
             <!-- <img src="../../assets/erweima.png" alt=""> -->
             <div>
@@ -222,6 +222,7 @@ export default {
   padding: 0px 0 0 30px;
   //   display: flex;
 //   border: 1px solid #ccc;
+//   padding: 5px 0;
   width: 95%;
   //   display: flex;
   align-items: center;

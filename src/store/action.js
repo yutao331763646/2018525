@@ -15,7 +15,8 @@ import {
     PWJJ,
     PWJJARR,
     PHARMAVT_DATAAFTER,
-    USERINFO
+    USERINFO,
+    TEPEATORDER
 } from './mutation-types.js'
 import axios from "axios";
 export default {
@@ -40,7 +41,7 @@ export default {
             .then((res) => {
                 console.log(res)
                 if (res.data.code == 1) {
-                    console.log(res.data.data.default.serviceArr)
+                    // console.log(res.data.data.default.serviceArr)
                     let server = {
                         1: '代煎代送',
                         2: '自煎代送',
@@ -61,7 +62,6 @@ export default {
                         a: 0,
                         b: arr[0]
                     })
-                    console.log(arr[0])
 
                     commit('PHARMAVT_DATA', res.data.data);
                     commit('DISABLEDS', false)
@@ -132,5 +132,10 @@ export default {
         commit
     }, data) => {
         commit('USERINFO', data)
+    },
+    repeatOrder : ({
+        commit
+    }, data) => {
+        commit('TEPEATORDER', data)
     }
 }

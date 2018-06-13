@@ -6,53 +6,21 @@
 		</mu-appbar> -->
         <mu-flexbox orient=vertical class="content">
             <!-- 输入患者姓名及年龄性别 -->
-            <div>{{this.userinfos.username+this.userinfos.sex+this.userinfos.age}}</div>
-            <!-- <mu-flexbox class="name proposal" orient="horizontal">
-                <mu-flexbox-item grow="0.6">
-                    <mu-content-block class="username">用户</mu-content-block>
-                </mu-flexbox-item>
-                <mu-flexbox-item grow="2.5">
-                    <mu-auto-complete hintText="请输入患者姓名" fullWidth @input="handlechange1" />
-                </mu-flexbox-item>
-                <mu-flexbox-item grow="1" class="checknv proposal">
-                    <mu-raised-button label="男" @click="dialog = true" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                    <mu-dialog :open="dialog" title="请选择性别" @close="closenv">
-                        <mu-list>
-                            <mu-list-item title="男">
-                                <mu-icon slot="left" value="perm_identity" />
-                            </mu-list-item>
-                            <mu-list-item title="女">
-                                <mu-icon slot="left" value="face" />
-                            </mu-list-item>
-                        </mu-list>
-                    </mu-dialog>
-                </mu-flexbox-item>
-                <mu-flexbox-item grow="1">
-                    <mu-auto-complete hintText="年龄" fullWidth @input="handlechange1" />
-                </mu-flexbox-item>
-                <mu-flexbox-item grow="1" class="checkns proposal">
-                    <mu-raised-button label="岁" @click="dialog2 = true" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                    <mu-dialog :open="dialog2" title="请选择年龄" @close="close">
-                        <mu-list>
-                            <mu-list-item title="岁">
-                                <mu-icon slot="left" value="looks_one" />
-                            </mu-list-item>
-                            <mu-list-item title="月">
-                                <mu-icon slot="left" value="filter_1" />
-                            </mu-list-item>
-                        </mu-list>
-                    </mu-dialog>
-                </mu-flexbox-item>
-            </mu-flexbox> -->
+            <mu-flexbox class="yongfa">
+                <mu-content-block>用户： </mu-content-block>
+                <mu-raised-button :label="this.userinfos.username" primary />
+                <mu-raised-button :label="this.userinfos.sex" primary />
+                <mu-raised-button :label="this.userinfos.age" primary />
+            </mu-flexbox>
             <mu-divider/>
-            <!-- 病症 -->
 
-            <mu-flexbox wrap="wrap" v-if="updatedimgshow">
+            <!-- 病症 -->
+            <mu-flexbox wrap="wrap">
                 <mu-chip v-for="(item,index) in actives" :key="index" @delete="diseaseClose(index)" showDelete style="line-height:26px;margin-right:10px;margin-top:5px;margin-bottom:5px">
                     {{item}}
                 </mu-chip>
             </mu-flexbox>
-            <mu-flexbox class="disease_name proposal" orient="horizontal" v-if="updatedimgshow">
+            <mu-flexbox class="disease_name proposal" orient="horizontal">
                 <div class="seach_disease">
                     <input type="text" placeholder="请输入病症名" @input="handleInputdiseasecs" v-model="diseaseNamecs" ref="diseaseFocuscs">
                     <ul v-if="openDiseaseListcs">
@@ -60,7 +28,7 @@
                     </ul>
                 </div>
             </mu-flexbox>
-            <mu-divider v-if="updatedimgshow" />
+            <mu-divider />
 
             <!-- 方案补充收费 -->
             <mu-flexbox class="f_nob proposal" orient="horizontal" @click.native="dialog3 = true">
@@ -114,7 +82,7 @@
                 </mu-drawer>
             </mu-flexbox>
             <mu-divider v-if="zhongyaopinpianshow" />
-            <div style="width:100%" v-if="updatedimgshow">
+            <div style="width:100%">
                 <mu-flexbox class="yongfa">
                     <mu-content-block>用法： </mu-content-block>
                     <mu-raised-button label="内服" :secondary="yongfa==0" @click="yongfac(0)" />
@@ -143,12 +111,12 @@
             </div>
 
             <!-- 医嘱 -->
-            <mu-flexbox class="disease_name proposal yizhu" orient="horizontal" @click.native="toggle()" v-if="updatedimgshow">
+            <mu-flexbox class="disease_name proposal yizhu" orient="horizontal" @click.native="toggle()">
                 <mu-content-block>医嘱</mu-content-block>
                 <mu-raised-button :label="yiZhu" labelPosition="before" icon="keyboard_arrow_right" />
 
             </mu-flexbox>
-            <mu-divider v-if="updatedimgshow" />
+            <mu-divider />
             <mu-drawer right :open="openDrawer" class="mudrawer">
                 <mu-appbar title="医嘱">
                     <mu-icon-button icon="keyboard_arrow_left" slot="left" @click.native="openDrawer = false" />
@@ -195,7 +163,7 @@
             <!-- 购药前处方是否可见 -->
             <mu-flexbox class="disease_name proposal" orient="horizontal" @click.native="isitvisible" v-if="zhongyaopinpianshow">
                 <mu-content-block>购药前处方是否可见</mu-content-block>
-                <mu-raised-button class="demo-raised-button" label="不可见" labelPosition="before" icon="keyboard_arrow_right" />
+                <mu-raised-button class="demo-raised-button" :label="isShow" labelPosition="before" icon="keyboard_arrow_right" />
                 <mu-dialog :open="dialogisitvisible" title="购药前处方是否可见">
                     <mu-list>
                         <mu-list-item title="可见" @click="chooseisitvisible('可见')"></mu-list-item>
@@ -204,10 +172,10 @@
                 </mu-dialog>
             </mu-flexbox>
             <mu-divider v-if="zhongyaopinpianshow" />
-            <mu-flexbox v-if="updatedimgshow">
+            <mu-flexbox>
                 <mu-text-field v-model="advise" hintText="输入备注" multiLine :rows="1" :rowsMax="6" fullWidth class="beizhu" />
             </mu-flexbox>
-            <mu-divider v-if="updatedimgshow" />
+            <mu-divider />
         </mu-flexbox>
 
         <mu-flexbox orient="vertical" class="tuijya">
@@ -234,7 +202,7 @@
             </mu-flexbox>
 
             <!-- 价格列表 -->
-            <mu-flexbox>
+            <mu-flexbox v-if="zhongyaopinpianshow">
                 <mu-list class="pricelist">
                     <mu-list-item title="费用明细" />
                     <mu-divider/>
@@ -242,14 +210,18 @@
                     <mu-divider/>
                     <mu-list-item title="药费" :afterText="'单贴￥'+drugprice+ 'X 帖数'+data1num+' = ￥'+(drugprice*data1num).toFixed(2)" />
                     <mu-divider/>
-                    <mu-list-item title="代煎费" :afterText="'帖数'+data1num +'X '+data4num+'包 = ￥'+decoctings" />
-                    <mu-divider/>
+
+                    <mu-list-item v-if="isshowservemoney" title="加工费" :afterText="'￥'+defaults.serviceArr[serviceType.type].serve_money" />
+                    <mu-divider v-if="isshowservemoney" />
+
+                    <mu-list-item v-if="isShowdecoctings" title="代煎费" :afterText="'帖数'+data1num +'X '+data4num+'包 = ￥'+decoctings" />
+                    <mu-divider v-if="isShowdecoctings" />
                     <mu-list-item title="代送费" :afterText="'￥'+defaults.serviceArr[serviceType.type].give_money" />
                     <mu-divider/>
-                    <mu-list-item v-if="pinkageSupz" title="供应商专属优惠满99包邮" :afterText="'￥- '+subtrac99" class="redcoloe"/>
+                    <mu-list-item v-if="pinkageSupz" title="供应商专属优惠满99包邮" :afterText="'￥- '+subtrac99" class="redcoloe" />
                     <mu-divider v-if="pinkageSupz" />
 
-                    <mu-list-item v-if="sup_discountsz" :title="defaults.discounts.name" :afterText="'￥'+sup_discounts.toFixed(2)"  class="redcoloe"/>
+                    <mu-list-item v-if="sup_discountsz" :title="defaults.discounts.name" :afterText="'￥'+sup_discounts.toFixed(2)" class="redcoloe" />
                     <mu-divider v-if="sup_discountsz" />
 
                     <mu-list-item title="总计" :afterText="'￥'+totalprice" class="totalprice" />
@@ -326,6 +298,7 @@ export default {
             dialogStoreJy: false,//保存为经验方的弹窗
             classifys: [],//经验方分类列表
             classindex: 0,
+            isShow: '不可见',//购药前处方是否可见
             classify: 0,
             n: '',
             taboos: ['忌辛辣', '忌油腻', '忌生冷', '忌烟酒', '忌发物', '忌荤腥', '忌酸涩', '忌刺激性食物', '忌敏性食物', '忌难消化食物', '备孕禁服', '怀孕禁服', '经期停服', '感冒停服', '忌与西药同服'],
@@ -344,7 +317,7 @@ export default {
             neifu: true,
             diseaseIdarr: [],//病症id数组
             diseaseId: '',//病症ID
-            taboo: '无',//禁忌与忌口  给后台的
+            taboo: '',//禁忌与忌口  给后台的
             advise: '',//备注
             eat_time: '',//服用时间
             method_out: '',//外用方法
@@ -401,7 +374,8 @@ export default {
             this.dialogisitvisible = true
         },
         chooseisitvisible(val) {
-            console.log(val)
+            this.isShow = val;
+            // console.log(val)
             if (val == "可见") {
                 this.is_show = 1
             } else {
@@ -462,10 +436,15 @@ export default {
                     } else {
                         if (!this.valueYi) {
                             this.valueYi = val
-                            this.taboo = val
                         } else {
                             this.valueYi = this.valueYi + "，" + val
+                        }
+                        if (!this.taboo) {
+                            this.taboo = val
+
+                        } else {
                             this.taboo = this.taboo + "，" + val
+
                         }
                         this.tabooactive.splice(indexs, 1, true)
                     }
@@ -751,13 +730,10 @@ export default {
             }
         },
         submissions() {
-            let disease = this.actives.join(",")
-            let useage = this.data1num + "," + this.data2num + "," + this.data3num + "," + this.data4num
-            // let sup_discounts = 0;
-            // sup_discounts = -((1 - Number(this.defaults.discounts.point)) * (this.drugprice * this.data1num)).toFixed(2)
-            // console.log(this.defaults)
+            let disease = this.actives.join(","),
+                useage = this.data1num + "," + this.data2num + "," + this.data3num + "," + this.data4num
 
-            let [pwjjarrs, drugCL, drugArr] = [[], [], []]
+            let [pwjjarrs, drugCL, drugArr, tabootophp] = [[], [], [], ''];
             let arrId = this.datas2.map((item, indexx) => {
                 return item.drug_id
             })
@@ -776,6 +752,12 @@ export default {
                     drugCL.push({ "code": item.drug_id, "max": item.max })
                 }
             })
+            // let tabootophp = '';
+            if (this.taboo == '') {
+                tabootophp = '无'
+            } else {
+                tabootophp = this.taboo
+            }
             // 中药饮片的参数
             let params = {
                 data:
@@ -784,7 +766,7 @@ export default {
                         'disease': disease,//ok
                         'type': this.type,//ok
                         'useage': useage,//ok
-                        'taboo': this.taboo,//ok
+                        'taboo': tabootophp,//ok
                         'advise': this.advise,//ok
                         'use_type': this.yongfa,//ok
                         'eat_time': this.eat_time,//ok
@@ -798,18 +780,18 @@ export default {
                         'g_m': this.defaults.serviceArr[this.serviceType.type].give_money,//ok
                         'cost_money': this.price,//ok
                         'allTotal': this.totalprice,//ok
-                        'cheap_money': this.subtrac99,//ok
-                        'JGMoney': 0,//加工费
+                        'cheap_money': Number(-this.subtrac99),//ok
+                        'JGMoney': this.defaults.serviceArr[serviceType.type].serve_money,//加工费
                         'discounts_id': this.defaults.discounts.id,//ok
                         'sup_discounts': this.sup_discounts,//ok
                         'sup_discounts_name': this.defaults.discounts.name,//ok
 
 
-                        'drugCL': drugCL,//ok
+                        'drugCLArr': drugCL,//ok
                         'drugArr': drugArr,//ok
-                        'pwjj': pwjjarrs,//ok
+                        'pwjjArr': pwjjarrs,//ok
 
-                        'isTest': 'isTest'
+                        // 'isTest': 'isTest'
                     }
             }
             let params2 = {
@@ -843,6 +825,15 @@ export default {
                 axios.post('?do=KFprescribe', Qs.stringify(params))
                     .then((res) => {
                         console.log(res.data)
+                        // let url = window.location.href;
+                        // console.log(url)
+                        if (res.data.code) {
+                            this.showToast(res.data.msg)
+                             window.location.href = res.data.url
+                            console.log( typeof(res.data.msg))
+                        } else {
+                            this.showToast(res.data.msg)
+                        }
 
 
                     })
@@ -916,7 +907,11 @@ export default {
         },
         //供应商优惠
         sup_discounts() {
-            return -((1 - Number(this.defaults.discounts.point)) * (this.drugprice * this.data1num)).toFixed(2)
+            if (this.defaults.discounts) {
+                return -((1 - Number(this.defaults.discounts.point)) * (this.drugprice * this.data1num)).toFixed(2)
+            } else {
+                return Number(0).toFixed(2)
+            }
         },
         // 总价
         totalprice() {
@@ -938,6 +933,7 @@ export default {
                 return true
             }
         },
+        // 拍方时显示
         updatedimgshow() {
             if (this.type == -1) {
                 return true
@@ -945,11 +941,28 @@ export default {
                 return false
             }
         },
+        //中药饮片和颗粒剂时显示
         zhongyaopinpianshow() {
             if (this.type == -1) {
                 return false
             } else {
                 return true
+            }
+        },
+        // 是否显示加工费
+        isshowservemoney() {
+            if (this.type == 3) {
+                return true
+            } else {
+                return false
+            }
+        },
+        // 是否显示代煎费
+        isShowdecoctings() {
+            if (this.type == 1) {
+                return true
+            } else {
+                return false
             }
         }
 

@@ -89,6 +89,18 @@ export default {
         }
     },
     methods: {
+        signCFFF(){
+            let data=this.repeatOrder;
+            console.log(data)
+
+              this.pharmavyData(data.data.orderInfo.drug_type)
+            if(data.cfORff=='cf'){
+                 console.log("重方")
+            }else{
+                 console.log("复方")
+            }
+     
+        },
         chooseType(index, type) {
             console.log(type)
             let _this = this;
@@ -159,7 +171,8 @@ export default {
     },
     mounted() {
         this.initGetData();
-        this.pharmavyData(1)
+        this.pharmavyData(1);
+         this.signCFFF();
     },
     components: {
         ChoosePharmavy
@@ -170,6 +183,7 @@ export default {
             // 	pharmavyData: state => state.pharmavyData,
             disableds: state => state.disableds,
             typeindex: state => state.type,
+            repeatOrder:state => state.repeatOrder,
         })
     }
 }
