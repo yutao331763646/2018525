@@ -22,7 +22,7 @@
                         <span>病症：</span>
                         <span>{{item.norm_disease}}</span>
                     </mu-list-item>
-                    <mu-list-item class="list"> 
+                    <mu-list-item class="list">
                         <span>医嘱：</span>
                         <span>{{item.taboo}}</span>
                     </mu-list-item>
@@ -38,7 +38,7 @@
         </mu-flexbox>
         <mu-flexbox class="tuijya">
             <!-- 推荐药房及弹出层 -->
-            <ChoosePharmavy   @pinkageSupze="pinkageSupzet"  />
+            <ChoosePharmavy @pinkageSupze="pinkageSupzet" />
         </mu-flexbox>
         <mu-flexbox class="nextstep" @click.native="goProposal">
             <!-- 跳到开方页面 -->
@@ -89,22 +89,43 @@ export default {
         }
     },
     methods: {
-        signCFFF(){
-            let data=this.repeatOrder;
-            console.log(data)
+        signCFFF() {
+            // let data = this.repeatOrder;
+            // console.log(this.repeatOrder)
+            // console.log(this.repeatOrder.data.orderInfo.supplier_id)
+            if (!this.repeatOrder.data) {
+                this.pharmavyData({ type: 1, sid: '' });
+                console.log("正常流程")
+            } else {
+                console.log("重方")
+                this.pharmavyData({
+                    type: this.repeatOrder.data.orderInfo.drug_type,
+                    sid: this.repeatOrder.data.orderInfo.supplier_id,
+                    give_type:this.repeatOrder.data.orderInfo.give_type
+                })
 
-              this.pharmavyData(data.data.orderInfo.drug_type)
-            if(data.cfORff=='cf'){
-                 console.log("重方")
-            }else{
-                 console.log("复方")
             }
-     
+            // if (data.cfORff == 'cf') {
+            //     // console.log("重方")
+            // } else {
+            //     // console.log("复方")
+            // }
+
         },
         chooseType(index, type) {
             console.log(type)
-            let _this = this;
-            this.pharmavyData(type);
+            // this.pharmavyData(type);
+            //  if (!this.repeatOrder.data) {
+                this.pharmavyData({ type: type, sid: '' });
+            // } else {
+            //     console.log("重方")
+            //     this.pharmavyData({
+            //         type: this.repeatOrder.data.orderInfo.drug_type,
+            //         sid: this.repeatOrder.data.orderInfo.supplier_id,
+            //         // give_type:this.repeatOrder.data.orderInfo.give_type
+            //     })
+
+            // }
 
 
         },
@@ -114,7 +135,7 @@ export default {
         toggle() {
             console.log("获取用户的历史订单")
             let _this = this;
-            axios.get('http://w.i.htyy.com/doctor_ajax.php?do=getUserOrderInfo&uid=1447329')
+            axios.get('?do=getUserOrderInfo&uid=1447329')
                 .then((res) => {
                     if (res.data.code == 1) {
                         _this.open = !_this.open;
@@ -141,7 +162,7 @@ export default {
         },
         initGetData() {
             let _this = this;
-            axios.get('http://w.i.htyy.com/doctor_ajax.php?do=gainTypes')
+            axios.get('?do=gainTypes')
                 .then((res) => {
                     // console.log(res)
                     if (res.data.code == 1) {
@@ -155,14 +176,14 @@ export default {
                     console.log(err);
                 });
         },
-         pinkageSupzet(bool) {
+        pinkageSupzet(bool) {
             console.log(bool)
             this.pinkageSupz = bool
             console.log("是否显示" + this.pinkageSupz)
         },
         // serviceTypeto(item) {
         //     this.$emit('serviceTypee',item)
-          
+
         // },
         ...mapActions([
             'pharmavyData',
@@ -171,8 +192,8 @@ export default {
     },
     mounted() {
         this.initGetData();
-        this.pharmavyData(1);
-         this.signCFFF();
+        // this.pharmavyData(1);
+        this.signCFFF();
     },
     components: {
         ChoosePharmavy
@@ -183,7 +204,7 @@ export default {
             // 	pharmavyData: state => state.pharmavyData,
             disableds: state => state.disableds,
             typeindex: state => state.type,
-            repeatOrder:state => state.repeatOrder,
+            repeatOrder: state => state.repeatOrder,
         })
     }
 }

@@ -123,15 +123,15 @@
                     <mu-flat-button slot="right" label="保存" color="white" @click="storeYi()" />
                 </mu-appbar>
                 <mu-list class="mulist">
-                    <mu-text-field v-model="valueYi" hintText="服药时间、忌口与禁忌、用药注意事项等（药房和患者均可见）" fullWidth :errorText="multiLineInputErrorText" @textOverflow="handleMultiLineOverflow" multiLine :rows="3" :rowsMax="6" :maxLength="1000" />
-                    <mu-divider/>
-                    <mu-checkbox label="存为常用医嘱" uncheckIcon="panorama_fish_eye" checkedIcon="check_circle" />
-                    <mu-tabs :value="activeTab" @change="handleTabChange" class="mutabs">
+                    <!-- <mu-text-field v-model="valueYi" hintText="服药时间、忌口与禁忌、用药注意事项等（药房和患者均可见）" fullWidth :errorText="multiLineInputErrorText" @textOverflow="handleMultiLineOverflow" multiLine :rows="3" :rowsMax="6" :maxLength="1000" /> -->
+                    <!-- <mu-divider/> -->
+                    <!-- <mu-checkbox label="存为常用医嘱" uncheckIcon="panorama_fish_eye" checkedIcon="check_circle" /> -->
+                    <!-- <mu-tabs :value="activeTab" @change="handleTabChange" class="mutabs">
                         <mu-tab value="ta1b1" icon="keyboard_hide" @active="yiZhuInput" />
                         <mu-tab value="tab2" title="快捷输入" />
                         <mu-tab value="tab3" title="常用医嘱" />
-                    </mu-tabs>
-                    <mu-divider class="tabline" />
+                    </mu-tabs> -->
+                    <!-- <mu-divider class="tabline" /> -->
                     <mu-flexbox v-if="activeTab === 'tab2'" orient='vertical'>
                         <mu-flexbox class="ftime" orient="horizontal">
                             <mu-content-block>服药时间</mu-content-block>
@@ -150,14 +150,14 @@
 
                         </mu-flexbox>
                     </mu-flexbox>
-                    <mu-flexbox v-if="activeTab === 'tab3'" orient="vertical">
+                    <!-- <mu-flexbox v-if="activeTab === 'tab3'" orient="vertical">
                         <mu-content-block class="tab3_list" @click="addComm()">
                             散落在指尖的阳光，我试着轻轻抓住光影的踪迹，它却在眉宇间投下一片淡淡的阴影。调皮的阳光掀动了四月的心帘，温暖如约的歌声渐起。似乎在诉说着，我也可以在漆黑的角落里，找到阴影背后的阳光，找到阳光与阴影奏出和谐的旋律。我要用一颗敏感赤诚的心迎接每一缕滑过指尖的阳光！
                         </mu-content-block>
                         <mu-content-block class="tab3_list" @click="addComm()">
                             散落在指尖的阳光，我试着轻轻抓住光影的踪迹，它却在眉宇间投下一片淡淡的阴影。调皮的阳光掀动了四月的心帘，温暖如约的歌声渐起。似乎在诉说着，我也可以在漆黑的角落里，找到阴影背后的阳光，找到阳光与阴影奏出和谐的旋律。我要用一颗敏感赤诚的心迎接每一缕滑过指尖的阳光！
                         </mu-content-block>
-                    </mu-flexbox>
+                    </mu-flexbox> -->
                 </mu-list>
             </mu-drawer>
             <!-- 购药前处方是否可见 -->
@@ -338,6 +338,90 @@ export default {
         // }
     },
     methods: {
+        signCFFF() {
+            if (!this.repeatOrder.data) {
+                console.log("正常流程")
+            } else {
+                console.log("===========重方")
+                console.log(this.repeatOrder)
+                let order = this.repeatOrder.data.orderInfo;
+                let druginfo = this.repeatOrder.data.drugInfo;//药品列表
+
+                let norm_disease = order.norm_disease,//病症名
+                    disease_id = order.disease_id,//病症id
+                    cost_money = order.cost_money,//诊费，方案补充收费
+                    use_type = order.use_type,//服用方式
+                    use_advise = order.use_advise,//外用用法
+                    useage = order.useage,//用法用量 5 1 1 5
+                    usetime = order.usetime,//用药时间
+                    is_show = order.is_show,//是否可见
+                    give_money = order.give_money;//配送费
+
+
+                let jj = ['忌辛辣', '忌敏性食物'];
+                this.valueYi=usetime+","+jj
+                let indexs = jj.map((item) => {
+                    return this.taboos.indexOf(item)
+                })
+                indexs.forEach((item) => {
+                    this.tabooactive.splice(item, 1, true)
+                })
+
+
+                let activescfff = norm_disease.split(',');
+                let useagecfff = useage.split(',')
+                let len = this.taTime.indexOf(usetime);//服药时间的索引
+
+                this.peisonged = order.give_type;//服务类型
+                this.timeactive = len;//让当前索引服药时间高亮
+                this.diseaseId = disease_id;//病症id
+                this.actives = activescfff;//病症名
+                this.price = cost_money;//诊费，方案补充收费
+                this.yongfa = use_type;//服用方式
+                this.method_out = use_advise;//外用用法
+                this.is_show = is_show;//是否可见
+                this.data1num = useagecfff[0];
+                this.data2num = useagecfff[1];
+                this.data3num = useagecfff[2];
+                this.data4num = useagecfff[3];
+                if (is_show) {
+                    this.isShow = "可见"
+                } else {
+                    this.isShow = "不可见"
+                }
+                if (use_type) {
+                    this.waiyong = true;
+                    this.neifu = false;
+                } else {
+                    this.waiyong = false;
+                    this.neifu = true
+                }
+
+                let drugNameOkLists = druginfo.map((item) => {
+                    return {
+                        drugName: item.drug_name,
+                        num: item.number,
+                        sprice: item.unit_price,
+                        unit: item.unit,
+                        drug_id: item.drug_code,
+                        max: item.max,
+                        is_abnormal: item.is_abnormal
+                    }
+                })
+
+                // 计算单贴价格
+                let x = 0;
+                drugNameOkLists.forEach((item) => {
+                    x += item.num * item.sprice
+                })
+                let y = Math.ceil(x * 100);
+                this.drugprice = (y / 100).toFixed(2)
+
+                this.adddatas2(drugNameOkLists)
+
+
+            }
+        },
         handlechange1(val) {
             console.log(val)
             console.log("handlechange1")
@@ -389,18 +473,18 @@ export default {
         },
         storeYi() {
             this.openDrawer = false
-            console.log(this.valueYi);
+            // console.log(this.valueYi);
             this.yiZhu = this.valueYi;
         },
-        handleMultiLineOverflow(isOverflow) {
-            this.multiLineInputErrorText = isOverflow ? '超过啦！！！！' : ''
-        },
-        handleTabChange(val) {
-            this.activeTab = val
-        },
-        yiZhuInput() {
-            console.log("让医嘱输入框获取焦点")
-        },
+        // handleMultiLineOverflow(isOverflow) {
+        //     this.multiLineInputErrorText = isOverflow ? '超过啦！！！！' : ''
+        // },
+        // handleTabChange(val) {
+        //     this.activeTab = val
+        // },
+        // yiZhuInput() {
+        //     console.log("让医嘱输入框获取焦点")
+        // },
         yongfac(num) {
             this.yongfa = num;
             if (num) {
@@ -457,9 +541,9 @@ export default {
                 return false;
             })
         },
-        addComm() {
-            console.log("常用医嘱")
-        },
+        // addComm() {
+        //     console.log("常用医嘱")
+        // },
         //  病症的模糊匹配
         handleInputdiseasecs() {
             this.openDiseaseListcs = true
@@ -758,6 +842,18 @@ export default {
             } else {
                 tabootophp = this.taboo
             }
+
+            let discounts = this.defaults.discounts,
+                discounts_id = null,
+                sup_discounts_name = '';
+            if (discounts) {
+                discounts_id = discounts.id;
+                sup_discounts_name = discounts.name;
+            } else {
+                discounts_id = null;
+                sup_discounts_name = '';
+            }
+
             // 中药饮片的参数
             let params = {
                 data:
@@ -781,10 +877,10 @@ export default {
                         'cost_money': this.price,//ok
                         'allTotal': this.totalprice,//ok
                         'cheap_money': Number(-this.subtrac99),//ok
-                        'JGMoney': this.defaults.serviceArr[serviceType.type].serve_money,//加工费
-                        'discounts_id': this.defaults.discounts.id,//ok
+                        'JGMoney': this.defaults.serviceArr[this.serviceType.type].serve_money,//加工费
+                        'discounts_id': discounts_id,//ok
                         'sup_discounts': this.sup_discounts,//ok
-                        'sup_discounts_name': this.defaults.discounts.name,//ok
+                        'sup_discounts_name': sup_discounts_name,//ok
 
 
                         'drugCLArr': drugCL,//ok
@@ -829,8 +925,8 @@ export default {
                         // console.log(url)
                         if (res.data.code) {
                             this.showToast(res.data.msg)
-                             window.location.href = res.data.url
-                            console.log( typeof(res.data.msg))
+                            window.location.href = res.data.url
+                            console.log(typeof (res.data.msg))
                         } else {
                             this.showToast(res.data.msg)
                         }
@@ -841,13 +937,13 @@ export default {
                         console.log(err);
                     });
             }
-
-
-
         },
+
+
         ...mapActions([
             'drugsData',
-            'getAllpwjj'
+            'getAllpwjj',
+            'adddatas2'
         ]),
 
     },
@@ -857,11 +953,12 @@ export default {
     },
 
     mounted() {
-        this.diseaseDatas = disease;
         this.addTabooas();
+        this.signCFFF();
+        this.diseaseDatas = disease;
         this.pinkageSup();
         this.ispinkageSupz();
-
+        // this.vtotalprice();
     },
     updated() {
         //    this.ispinkageSupz();
@@ -877,7 +974,8 @@ export default {
             pwjjarr: state => state.pwjjarr,
             defaults: state => state.defaults,
             serviceType: state => state.serviceType,
-            userinfos: state => state.userinfo
+            userinfos: state => state.userinfo,
+            repeatOrder: state => state.repeatOrder,
         }),
         // 是否显示供应商优惠
         sup_discountsz() {
@@ -890,7 +988,6 @@ export default {
         },
         // 代煎费
         decoctings() {
-            console.log(this.defaults.serviceArr[this.serviceType.type].proce_money)
             if (this.drugprice) {
                 return ((this.defaults.serviceArr[this.serviceType.type].proce_money) * this.data1num * this.data4num).toFixed(2)
             } else {

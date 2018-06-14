@@ -109,10 +109,10 @@ export default {
             this.uid = item.id;
             this.users = item;
         },
-        
+
         signCFFF() {
             let params = {
-                "test": 1
+                // "test": 1
             }
             axios.post('?do=repeatOrder', Qs.stringify(params))
                 .then((res) => {
@@ -132,7 +132,7 @@ export default {
                             // 设置一些初始化的默认值
                             this.userNum = orther[0].mobile;
                             this.uid = orther[0].id;
-                          
+
 
                         } else {
                             console.log("复方")
@@ -144,7 +144,7 @@ export default {
                 })
                 .catch((err) => {
                     console.log(err);
-                     this.showToast('连接服务器失败！');
+                    this.showToast('连接服务器失败！');
                 });
         },
         search() {
@@ -219,7 +219,7 @@ export default {
                         if (!this.users.usename) {
                             // console.log("没有点击，选择默认第一个")
                             //没有点击，选择默认第一个
-                             console.log(this.userLists)
+                            console.log(this.userLists)
                             this.userinfo({
                                 username: this.userLists[0].usename,
                                 age: this.userLists[0].age,
@@ -266,6 +266,7 @@ export default {
     },
     mounted() {
         this.signCFFF();
+       
     },
     computed: {
         ...mapState({

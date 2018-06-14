@@ -7,7 +7,7 @@
         </mu-flexbox>
         <!--非弹出层 的默认选中药房 -->
         <div class="pharmacylist" v-if="tuishow" style="padding-left:10px;border:1px solid #ccc;padding: 5px 0 5px 20px;width:100%;">
-            <mu-radio disabled :label="defaults.name"/>
+            <mu-radio disabled :label="defaults.name" />
             <!-- <img src="../../assets/erweima.png" alt=""> -->
             <div>
                 <!-- <span>{{defaults.name}}</span> -->
@@ -27,8 +27,8 @@
                 <!-- 弹出层的药房 -->
                 <div v-for="(item,index) in pharmavyDatas.select[num]" :key="index" class="pharmavyDataslist">
 
-                    <mu-radio :nativeValue="item.name"  :label="item.name"  name="group" v-model="value"  @click.native="choosePhar(index,item)"></mu-radio>
-                    <pharmacylist :text="item"/>
+                    <mu-radio :nativeValue="item.name" :label="item.name" name="group" v-model="value" @click.native="choosePhar(index,item)"></mu-radio>
+                    <pharmacylist :text="item" />
                 </div>
             </mu-list>
         </mu-popup>
@@ -45,6 +45,7 @@ import pharmacylist from './PharmacyList.vue'
 import { mapState, mapActions } from 'vuex'
 import axios from "axios";
 import Qs from 'qs'
+import { setTimeout } from 'timers';
 export default {
     name: 'ChoosePharmavy',
     data() {
@@ -73,30 +74,43 @@ export default {
     },
     methods: {
         openpopup(position) {
+
             this[position + 'Popup'] = true;
             this.servers = [];
             this.typeindex2 = 0;
-            console.log(this.datas2)
-            if (this.datas2.length < 1) {
-                this.pharmavyData(this.type)
-                console.log("这是没有选择药品时打开的")
 
+
+            // 先判断是否重方复方
+            if (!this.repeatOrder.data) {
+                // 再判断容器内是否有药，无药的话默认走上一步的选择类型请求供应商信息
+                if (this.datas2.length < 1) {
+                    this.pharmavyData({ type: this.type, sid: '' })
+                } else {
+                    // 有药的话  用容器内的药品去拉新的供应商信息
+                    let param = new FormData();
+                    param.append('drug_code', this.datas2);
+                    axios.post('?do=selectSup', Qs.stringify(param))
+                        .then((res) => {
+                            console.log(res)
+                            this.pharmavyDatass(res.data.data);
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });
+                }
             } else {
-                let _this = this,
-                    param = new FormData();
-                param.append('drug_code', this.datas2);
-                axios.post('?do=selectSup', Qs.stringify(param))
-                    .then((res) => {
-                        console.log(res)
-                        this.pharmavyDatass(res.data.data);
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
+                console.log("重方")
+                this.pharmavyData({
+                    type: this.repeatOrder.data.orderInfo.drug_type,
+                    sid: this.repeatOrder.data.orderInfo.supplier_id,
+                    give_type: this.repeatOrder.data.orderInfo.give_type
+                })
             }
+
             let keys = Object.keys(this.pharmavyDatas.select);
             this.num = keys[0];//打开推荐其他药房时，默认选中第一个服务类型及当前类型下的供应商
             // console.log(keys);
+
             if (keys) {
                 keys.forEach((item, index) => {
                     this.servers.push({ name: this.server[item], type: item })
@@ -165,6 +179,7 @@ export default {
     beforeMount() {
     },
     mounted() {
+
     },
     beforeUpdate() {
     },
@@ -184,6 +199,7 @@ export default {
             datas2: state => state.datas2,
             type: state => state.type,
             sid: state => state.defaults.supplier_id,
+            repeatOrder: state => state.repeatOrder,
 
         }),
         serviceArrDefault() {
@@ -218,11 +234,11 @@ export default {
 }
 .pharmacylist {
   margin: 0 auto;
-//   margin-top: 10px;
+  //   margin-top: 10px;
   padding: 0px 0 0 30px;
   //   display: flex;
-//   border: 1px solid #ccc;
-//   padding: 5px 0;
+  //   border: 1px solid #ccc;
+  //   padding: 5px 0;
   width: 95%;
   //   display: flex;
   align-items: center;
@@ -250,9 +266,9 @@ export default {
     }
   }
 }
-.pharmavyDataslist{
-    padding: 0 10px;
-    margin-bottom: 5px;
-    border-bottom: 1px solid #eee;
+.pharmavyDataslist {
+  padding: 0 10px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #eee;
 }
 </style>

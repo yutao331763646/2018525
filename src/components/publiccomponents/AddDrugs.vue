@@ -185,6 +185,24 @@ export default {
         }
     },
     methods: {
+        signCFFF() {
+            if (!this.repeatOrder.data) {
+                console.log("正常流程")
+            } else {
+                let druginfo = this.repeatOrder.data.drugInfo;//药品列表
+                this.drugNameOkLists = druginfo.map((item) => {
+                    return {
+                        drugName: item.drug_name,
+                        num: item.number,
+                        sprice: item.unit_price,
+                        unit: item.unit,
+                        drug_id: item.drug_code,
+                        max: item.max,
+                        is_abnormal: item.is_abnormal
+                    }
+                })
+            }
+        },
         inputEn(val) {
             this.drugNameJpShow = true;
             this.drugNameJpremind = false;
@@ -411,7 +429,7 @@ export default {
                 this.keyboardCh = false;
                 this.keyboardEn = true;
                 this.is_abnormal = 0;
-                this.numOklActive=false
+                this.numOklActive = false
             } else {
                 this.showToast('请输入药品重量');
             }
@@ -483,6 +501,7 @@ export default {
         },
         storeFang() {
             // console.log("保存方案")
+            console.log(this.drugNameOkLists)
             this.$store.dispatch('istrue', false)
             this.adddatas2(this.drugNameOkLists)
             let x = 0;
@@ -556,7 +575,7 @@ export default {
         }
     },
     mounted() {
-
+        this.signCFFF();
     },
     computed: {
         ...mapState({
@@ -564,6 +583,7 @@ export default {
             type: state => state.type,
             supid: state => state.defaults.supplier_id,
             pwjj: state => state.pwjj,
+            repeatOrder: state => state.repeatOrder,
         })
     }
 }

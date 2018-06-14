@@ -19,6 +19,7 @@ import {
     TEPEATORDER
 } from './mutation-types.js'
 import axios from "axios";
+import Qs from 'qs'
 export default {
     adddatas({
         commit
@@ -32,16 +33,18 @@ export default {
     },
     pharmavyData({
         commit
-    }, data) {
+    }, {type, sid, give_type}) {
         console.log()
-        commit('TYPE', data)
-        let url = '?do=getSupByTYPE&type=' + data
+        commit('TYPE', type)
+        let param = {
+            'type': type,
+            'supId': sid
+        }
         axios
-            .get(url)
+            .get('?do=getSupByTYPE', {params: param})
             .then((res) => {
                 console.log(res)
                 if (res.data.code == 1) {
-                    // console.log(res.data.data.default.serviceArr)
                     let server = {
                         1: '代煎代送',
                         2: '自煎代送',
@@ -58,10 +61,21 @@ export default {
                             arr.push({name: server[item], type: item})
                         })
                     }
-                    commit('TYPE_INDEX', {
-                        a: 0,
-                        b: arr[0]
-                    })
+                    if (sid) {
+                        // 如果是重方复方
+                        // 设置原始方的高亮和选择
+                        let index = keys.indexOf(give_type)
+                        commit('TYPE_INDEX', {
+                            a: index,
+                            b: arr[index]
+                        })
+                    } else {
+                        // 否则默认当前用药类型的第一个
+                        commit('TYPE_INDEX', {
+                            a: 0,
+                            b: arr[0]
+                        })
+                    }
 
                     commit('PHARMAVT_DATA', res.data.data);
                     commit('DISABLEDS', false)
