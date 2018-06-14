@@ -129,9 +129,17 @@ export default {
                             let orther = res.data.data.userInfo.orther;
                             this.searcjs = true;
                             this.userLists = orther;//渲染所有数据
+
+                            let defaultUserName = res.data.data.userInfo.default.usename;
+                            let ortherUserName = res.data.data.userInfo.orther.map((item) => {
+                                return item.usename;
+                            });
+                            let len = ortherUserName.indexOf(defaultUserName);
+                            console.log(len)
+                            this.active = len;
                             // 设置一些初始化的默认值
-                            this.userNum = orther[0].mobile;
-                            this.uid = orther[0].id;
+                            this.userNum = orther[len].mobile;
+                            this.uid = orther[len].id;
 
 
                         } else {
@@ -266,7 +274,7 @@ export default {
     },
     mounted() {
         this.signCFFF();
-       
+
     },
     computed: {
         ...mapState({

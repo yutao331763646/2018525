@@ -355,14 +355,21 @@ export default {
                     useage = order.useage,//用法用量 5 1 1 5
                     usetime = order.usetime,//用药时间
                     is_show = order.is_show,//是否可见
-                    give_money = order.give_money;//配送费
+                    give_money = order.give_money,//配送费
+                    taboo = order.taboo;//忌口与禁忌  
+                this.advise = order.advise;//其他医嘱  备注
+                console.log("是否可见" + typeof(is_show))
 
-
-                let jj = ['忌辛辣', '忌敏性食物'];
-                this.valueYi=usetime+","+jj
-                let indexs = jj.map((item) => {
-                    return this.taboos.indexOf(item)
-                })
+                let jjj = taboo.split(',');
+                let indexs = [];
+                if (taboo == '无') {
+                    indexs = []
+                } else {
+                    indexs = jjj.map((item) => {
+                        return this.taboos.indexOf(item)
+                    })
+                }
+          
                 indexs.forEach((item) => {
                     this.tabooactive.splice(item, 1, true)
                 })
@@ -374,6 +381,7 @@ export default {
 
                 this.peisonged = order.give_type;//服务类型
                 this.timeactive = len;//让当前索引服药时间高亮
+                this.eat_time = usetime;//传给后台的服用时间
                 this.diseaseId = disease_id;//病症id
                 this.actives = activescfff;//病症名
                 this.price = cost_money;//诊费，方案补充收费
@@ -384,9 +392,12 @@ export default {
                 this.data2num = useagecfff[1];
                 this.data3num = useagecfff[2];
                 this.data4num = useagecfff[3];
-                if (is_show) {
+                
+                if (Number(is_show)) {
                     this.isShow = "可见"
+                    console.log("可见")
                 } else {
+                    console.log("不可见")
                     this.isShow = "不可见"
                 }
                 if (use_type) {
