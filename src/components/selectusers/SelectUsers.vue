@@ -83,7 +83,7 @@ export default {
         return {
             searcjs: false,
             news: false,
-            userNum: '',
+            userNum: '15618588238',
             userLists: [],
             toast: false,
             toastMsg: '',//吐司的msg
@@ -112,7 +112,7 @@ export default {
 
         signCFFF() {
             let params = {
-                // "test": 1
+                // "test": 0
             }
             axios.post('?do=repeatOrder', Qs.stringify(params))
                 .then((res) => {

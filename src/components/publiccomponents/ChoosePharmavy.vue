@@ -16,25 +16,25 @@
         </div>
         <mu-popup position="bottom" popupClass="recommended_pharmacy" :open="bottomPopup">
             <mu-appbar title="推荐药房">
-                <mu-flat-button slot="left" label="取消" color="white" @click="closepopup('bottom')" />
+                <mu-flat-button slot="left" label="  " color="white" @click="closepopup('bottom')" />
                 <mu-flat-button slot="right" label="保存" color="white" @click="storePhar('bottom')" />
             </mu-appbar>
             <mu-flexbox orient="horizontal" wrap="wrap" class="dis_type">
                 <!-- 弹出层的配送方式 -->
-                <mu-raised-button v-for="(item,index ) in servers" :key="index" :label="item.name" @click="clickType(index,item.type)" :secondary="index==typeindex2" />
+                <mu-raised-button v-for="(item,index ) in servers" :key="index" :label="item.name" @click="clickType(index,item.type,item)" :secondary="index==typeindex2" />
             </mu-flexbox>
             <mu-list>
                 <!-- 弹出层的药房 -->
                 <div v-for="(item,index) in pharmavyDatas.select[num]" :key="index" class="pharmavyDataslist">
 
-                    <mu-radio :nativeValue="item.name" :label="item.name" name="group" v-model="value" @click.native="choosePhar(index,item)"></mu-radio>
-                    <pharmacylist :text="item" />
+                    <!-- <mu-radio :nativeValue="item.name" :label="item.name" name="group" v-model="value" @click.native="choosePhar(index,item)"></mu-radio> -->
+                    <pharmacylist :text="item" :class="{acited:suindex==index}" @click.native="choosePhar(index,item)" />
                 </div>
             </mu-list>
         </mu-popup>
         <!-- 非弹出层的默认配送方式 -->
         <mu-flexbox orient="horizontal" class="dis_type" v-if="tuishow" wrap="wrap">
-            <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item.name" :secondary="index==typeindexs" @click.native="chooseType(index,item)" />
+            <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item.name" :secondary="index==typeacti" @click.native="chooseType(index,item)" />
         </mu-flexbox>
         <mu-toast v-if="toast" message="当前用药类型没有推荐药房" />
     </div>
@@ -50,9 +50,9 @@ export default {
     name: 'ChoosePharmavy',
     data() {
         return {
-            value: '',
+            // value: '',
             bottomPopup: false,
-            checkindex: 50,// 初始化第一个栏块高亮
+            // checkindex: 50,// 初始化第一个栏块高亮
             server: {
                 1: '代煎代送',
                 2: '自煎代送',
@@ -70,6 +70,8 @@ export default {
                 '1': ['000000', '159101', '059102'],
                 '2': ['059107']
             },//满减活动的供应商id
+            typeacti: 0,
+            suindex: 0,
         }
     },
     methods: {
@@ -87,9 +89,11 @@ export default {
                     this.pharmavyData({ type: this.type, sid: '' })
                 } else {
                     // 有药的话  用容器内的药品去拉新的供应商信息
-                    let param = new FormData();
-                    param.append('drug_code', this.datas2);
-                    axios.post('?do=selectSup', Qs.stringify(param))
+                    console.log(this.datas2)
+                    let data={
+                          drug_code:  this.datas2
+                    }
+                    axios.post('?do=selectSup',  Qs.stringify(data))
                         .then((res) => {
                             console.log(res)
                             this.pharmavyDatass(res.data.data);
@@ -129,6 +133,7 @@ export default {
         },
         //保存选择的药房
         storePhar(position) {
+         
             this[position + 'Popup'] = false;
 
             let base = 0;
@@ -150,19 +155,37 @@ export default {
 
 
         },
-        clickType(index, type) {
+        clickType(index, type, item) {
+            console.log(item.type)
             this.num = type;
             this.typeindex2 = index;
+            // console.log(this.defaults.serviceArr)
+            // 被点击的服务类型的id在默认配送方式的的索引，让他高亮
+            let keyArr = Object.keys(this.defaults.serviceArr)
+            console.log(keyArr)
+            let len = keyArr.indexOf(item.type)
+            // 索引就是len
+            console.log(len)
+            this.typeacti = len
+            // console.log("默认选中的供应商是：")
+            // console.log(this.defaults)
+            this.$emit('peisong', item.type)
+            this.typeindex({ a: index, b: item })
 
         },
         choosePhar(index, item) {
-            // console.log(item)
+
+            this.suindex = index;
+            let keyArr = Object.keys(this.defaults.serviceArr)
+            let len = keyArr.indexOf(this.num)
+            this.typeacti = len
             this.changedefaults(item)
-            this.checkindex = index
-            console.log(this.defaults, item)
         },
         chooseType(index, item) {
             // console.log(item.type)
+            console.log(item)
+            this.typeacti = index;
+            // console.log(this.defaults.serviceArr)
             this.$emit('peisong', item.type)
             this.typeindex({ a: index, b: item })
         },
@@ -184,6 +207,7 @@ export default {
     beforeUpdate() {
     },
     updated() {
+
     },
     components: {
         pharmacylist,
@@ -200,6 +224,7 @@ export default {
             type: state => state.type,
             sid: state => state.defaults.supplier_id,
             repeatOrder: state => state.repeatOrder,
+            serviceType: state => state.serviceType,
 
         }),
         serviceArrDefault() {
@@ -270,5 +295,8 @@ export default {
   padding: 0 10px;
   margin-bottom: 5px;
   border-bottom: 1px solid #eee;
+}
+.acited {
+  border: 1px solid red;
 }
 </style>

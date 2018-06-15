@@ -43,50 +43,56 @@ export default {
         axios
             .get('?do=getSupByTYPE', {params: param})
             .then((res) => {
-                console.log(res)
                 if (res.data.code == 1) {
-                    let server = {
-                        1: '代煎代送',
-                        2: '自煎代送',
-                        3: '代煎自取',
-                        4: '自取',
-                        5: '送货上门',
-                        6: '货到付款',
-                        '-1': '门店结算'
-                    };
-                    let keys = Object.keys(res.data.data.default.serviceArr);
-                    let arr = [];
-                    if (keys) {
-                        keys.forEach((item, index) => {
-                            arr.push({name: server[item], type: item})
-                        })
-                    }
-                    if (sid) {
-                        // 如果是重方复方
-                        // 设置原始方的高亮和选择
-                        let index = keys.indexOf(give_type)
-                        commit('TYPE_INDEX', {
-                            a: index,
-                            b: arr[index]
-                        })
-                    } else {
-                        // 否则默认当前用药类型的第一个
-                        commit('TYPE_INDEX', {
-                            a: 0,
-                            b: arr[0]
-                        })
-                    }
 
-                    commit('PHARMAVT_DATA', res.data.data);
-                    commit('DISABLEDS', false)
-                    commit('TUISHOW', true)
-                    if (res.data.data.select.length < 1) {
-                        commit('TOAST')
-                        commit('DISABLEDS', true)
+                    if (res.data.msg == "拍照方") {
                         commit('TUISHOW', false)
+                        commit('DISABLEDS', false)
+                    } else {
+
+                        let server = {
+                            1: '代煎代送',
+                            2: '自煎代送',
+                            3: '代煎自取',
+                            4: '自取',
+                            5: '送货上门',
+                            6: '货到付款',
+                            '-1': '门店结算'
+                        };
+                        let keys = Object.keys(res.data.data.default.serviceArr);
+                        let arr = [];
+                        if (keys) {
+                            keys.forEach((item, index) => {
+                                arr.push({name: server[item], type: item})
+                            })
+                        }
+                        if (sid) {
+                            // 如果是重方复方 设置原始方的高亮和选择
+                            let index = keys.indexOf(give_type)
+                            commit('TYPE_INDEX', {
+                                a: index,
+                                b: arr[index]
+                            })
+                        } else {
+                            // 否则默认当前用药类型的第一个
+                            commit('TYPE_INDEX', {
+                                a: 0,
+                                b: arr[0]
+                            })
+                        }
+
+                        commit('PHARMAVT_DATA', res.data.data);
+                        commit('DISABLEDS', false)
+                        commit('TUISHOW', true)
+                        if (res.data.data.select < 1) {
+                            // commit('TOAST')
+                            commit('DISABLEDS', true)
+                            commit('TUISHOW', false)
+                        }
                     }
+                    // }
                 } else {
-                    commit('DISABLEDS', false)
+                    commit('DISABLEDS', true)
                     commit('TUISHOW', false)
                 }
             })
@@ -98,7 +104,6 @@ export default {
     pharmavyDatass({
         commit
     }, data) {
-        console.log(data)
         commit('PHARMAVT_DATAAFTER', data)
     },
     istrue({

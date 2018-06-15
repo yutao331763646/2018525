@@ -113,7 +113,7 @@ export default {
 
         },
         chooseType(index, type) {
-            console.log(type)
+           console.log(this.disableds)
             // this.pharmavyData(type);
             //  if (!this.repeatOrder.data) {
                 this.pharmavyData({ type: type, sid: '' });
@@ -130,7 +130,14 @@ export default {
 
         },
         goProposal() {
-            this.$router.push({ path: '/propsal' })
+            // console.log(this.type)
+            // console.log(this.disableds)
+            if(this.disableds){
+                console.log("其他")
+            }else{
+                this.$router.push({ path: '/propsal' })
+                console.log("膏方")
+            }
         },
         toggle() {
             console.log("获取用户的历史订单")
@@ -194,6 +201,7 @@ export default {
         this.initGetData();
         // this.pharmavyData(1);
         this.signCFFF();
+        console.log(this.disableds)
     },
     components: {
         ChoosePharmavy

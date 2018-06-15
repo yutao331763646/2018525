@@ -208,7 +208,7 @@
                     <mu-divider/>
                     <mu-list-item title="方案补充收费" :afterText="'￥'+Number(price).toFixed(2)" />
                     <mu-divider/>
-                    <mu-list-item title="药费" :afterText="'单贴￥'+drugprice+ 'X 帖数'+data1num+' = ￥'+(drugprice*data1num).toFixed(2)" />
+                    <mu-list-item title="药费" :afterText="'单贴￥'+totalPriceDan+ 'X 帖数'+data1num+' = ￥'+(totalPriceDan*data1num).toFixed(2)" />
                     <mu-divider/>
 
                     <mu-list-item v-if="isshowservemoney" title="加工费" :afterText="'￥'+defaults.serviceArr[serviceType.type].serve_money" />
@@ -216,7 +216,7 @@
 
                     <mu-list-item v-if="isShowdecoctings" title="代煎费" :afterText="'帖数'+data1num +'X '+data4num+'包 = ￥'+decoctings" />
                     <mu-divider v-if="isShowdecoctings" />
-                    <mu-list-item title="代送费" :afterText="'￥'+defaults.serviceArr[serviceType.type].give_money" />
+                    <mu-list-item title="代送费" :afterText="'￥'+g_m" />
                     <mu-divider/>
                     <mu-list-item v-if="pinkageSupz" title="供应商专属优惠满99包邮" :afterText="'￥- '+subtrac99" class="redcoloe" />
                     <mu-divider v-if="pinkageSupz" />
@@ -330,6 +330,8 @@ export default {
             imgArr: [],//拍照方图片地址数组
             // updatedimgshow: false,//上传图片的显隐
             // zhongyaopinpianshow: true,
+            subtrac99: 0,//满减优惠
+            g_m: 0//代送费
         }
     },
     filters: {
@@ -358,7 +360,7 @@ export default {
                     give_money = order.give_money,//配送费
                     taboo = order.taboo;//忌口与禁忌  
                 this.advise = order.advise;//其他医嘱  备注
-                console.log("是否可见" + typeof(is_show))
+                console.log("是否可见" + typeof (is_show))
 
                 let jjj = taboo.split(',');
                 let indexs = [];
@@ -369,7 +371,7 @@ export default {
                         return this.taboos.indexOf(item)
                     })
                 }
-          
+
                 indexs.forEach((item) => {
                     this.tabooactive.splice(item, 1, true)
                 })
@@ -392,7 +394,8 @@ export default {
                 this.data2num = useagecfff[1];
                 this.data3num = useagecfff[2];
                 this.data4num = useagecfff[3];
-                
+                this.taboo = taboo;
+
                 if (Number(is_show)) {
                     this.isShow = "可见"
                     console.log("可见")
@@ -400,7 +403,8 @@ export default {
                     console.log("不可见")
                     this.isShow = "不可见"
                 }
-                if (use_type) {
+                console.log(use_type)
+                if (Number(use_type)) {
                     this.waiyong = true;
                     this.neifu = false;
                 } else {
@@ -754,9 +758,19 @@ export default {
                 }
             });
             if (base == 0) {
-                this.pinkageSupz = false
+                // console.log("没有满减优惠")
+                this.pinkageSupz = false;
+                this.subtrac99 = Number(0).toFixed(2)
             } else {
-                this.pinkageSupz = true
+                this.pinkageSupz = true;
+                if ((this.drugprice * this.data1num > 99)) {
+                    // console.log("有满减优惠并且99")
+                    console.log(this.defaults.serviceArr)
+                    this.subtrac99 = (Number(this.defaults.serviceArr[this.serviceType.type].proce_money * this.data1num * this.data4num) + Number(this.defaults.serviceArr[this.serviceType.type].give_money)).toFixed(2);
+                } else {
+                    // console.log("有满减优惠《99")
+                    this.subtrac99 = Number(0).toFixed(2)
+                }
             };
 
         },
@@ -824,6 +838,15 @@ export default {
                 this.addimginp = true
             }
         },
+        //代送费
+        gm() {
+            // console.log("=====" + this.serviceType.type)
+            if (this.defaults.serviceArr[this.serviceType.type]) {
+                this.g_m = this.defaults.serviceArr[this.serviceType.type].give_money
+            } else {
+                this.g_m = 0
+            }
+        },
         submissions() {
             let disease = this.actives.join(","),
                 useage = this.data1num + "," + this.data2num + "," + this.data3num + "," + this.data4num
@@ -884,7 +907,7 @@ export default {
                         'd_m': (this.drugprice * this.data1num).toFixed(2),//ok
                         'p_m': this.decoctings,//ok
                         'drug_type': this.type,//ok
-                        'g_m': this.defaults.serviceArr[this.serviceType.type].give_money,//ok
+                        'g_m': this.g_m,//ok
                         'cost_money': this.price,//ok
                         'allTotal': this.totalprice,//ok
                         'cheap_money': Number(-this.subtrac99),//ok
@@ -901,6 +924,9 @@ export default {
                         // 'isTest': 'isTest'
                     }
             }
+            console.log(this.defaults.serviceArr)
+            console.log(this.serviceType)
+            console.log(params)
             let params2 = {
                 "costMoney": this.price,//ok
                 "imgArr": this.imgArr,//ok
@@ -934,6 +960,7 @@ export default {
                         console.log(res.data)
                         // let url = window.location.href;
                         // console.log(url)
+                        this.ispinkageSupz()
                         if (res.data.code) {
                             this.showToast(res.data.msg)
                             window.location.href = res.data.url
@@ -950,7 +977,25 @@ export default {
             }
         },
 
-
+        // // 单贴药品费用
+        // totalPriceDan() {
+        //     console.log("======================================")
+        //     console.log(this.pharmavyDatas.select)
+        //     let isTrue = this.pharmavyDatas.select;
+        //     console.log(isTrue)
+        //     let x = []
+        //     for (let item in isTrue) {
+        //         x = isTrue[item]
+        //     }
+        //     console.log('total' in x[0])
+        //     let bool = 'total' in  x[0]
+        //     if (bool) {
+        //         console.log("带价格的供应商")
+                
+        //     } else {
+        //         console.log("不带价格的供应商")
+        //     }
+        // },
         ...mapActions([
             'drugsData',
             'getAllpwjj',
@@ -968,11 +1013,15 @@ export default {
         this.signCFFF();
         this.diseaseDatas = disease;
         this.pinkageSup();
-        this.ispinkageSupz();
+        // this.ispinkageSupz();
         // this.vtotalprice();
     },
     updated() {
-        //    this.ispinkageSupz();
+        this.ispinkageSupz();
+        this.gm();
+        // this.totalPriceDan()
+        console.log("单贴费用  "+this.totalPriceDan)
+        console.log("总价"+this.totalprice)
     },
     computed: {
         // 全局共享的数据
@@ -987,6 +1036,7 @@ export default {
             serviceType: state => state.serviceType,
             userinfos: state => state.userinfo,
             repeatOrder: state => state.repeatOrder,
+            pharmavyDatas: state => state.pharmavyData,
         }),
         // 是否显示供应商优惠
         sup_discountsz() {
@@ -997,39 +1047,69 @@ export default {
                 return false
             }
         },
+            // 单贴药品费用
+        totalPriceDan() {
+            console.log("======================================")
+            console.log(this.defaults)
+            // let isTrue = this.pharmavyDatas.select;
+            // let x = []
+            // for (let item in isTrue) {
+            //     x = isTrue[item]
+            // }
+            // console.log('total' in x[0])
+            let bool='total' in this.defaults
+            // let bool = 'total' in  x[0]
+            if (bool) {
+                console.log(this.defaults.total)
+                return this.defaults.total
+                // console.log("带价格的供应商")
+                
+            } else {
+                return this.drugprice
+                // console.log("不带价格的供应商")
+            }
+        },
+    
         // 代煎费
         decoctings() {
+
             if (this.drugprice) {
-                return ((this.defaults.serviceArr[this.serviceType.type].proce_money) * this.data1num * this.data4num).toFixed(2)
+                if (this.type == 3) {
+                    return Number(0).toFixed(2)
+                } else {
+
+                    return ((this.defaults.serviceArr[this.serviceType.type].proce_money) * this.data1num * this.data4num).toFixed(2)
+                }
             } else {
                 return Number(0).toFixed(2)
             }
         },
         // 满减优惠
-        subtrac99() {
-            if (this.drugprice * this.data1num > 99) {
-                return (Number(this.defaults.serviceArr[this.serviceType.type].proce_money * this.data1num * this.data4num) + Number(this.defaults.serviceArr[this.serviceType.type].give_money)).toFixed(2);
-            } else {
-                return Number(0).toFixed(2)
-            }
-        },
+        // subtrac99() {
+        //     if (this.drugprice * this.data1num > 99) {
+        //         return (Number(this.defaults.serviceArr[this.serviceType.type].proce_money * this.data1num * this.data4num) + Number(this.defaults.serviceArr[this.serviceType.type].give_money)).toFixed(2);
+        //     } else {
+        //         return Number(0).toFixed(2)
+        //     }
+        // },
         //供应商优惠
         sup_discounts() {
             if (this.defaults.discounts) {
-                return -((1 - Number(this.defaults.discounts.point)) * (this.drugprice * this.data1num)).toFixed(2)
+                return -((1 - Number(this.defaults.discounts.point)) * (this.totalPriceDan * this.data1num)).toFixed(2)
             } else {
                 return Number(0).toFixed(2)
             }
         },
+
         // 总价
         totalprice() {
             if (this.drugprice == 0) {
                 return Number(0).toFixed(2)
             } else {
                 if (this.pinkageSupz) {
-                    return (Number(this.price) + Number(this.drugprice * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) - Number(this.subtrac99) + Number(this.sup_discounts)).toFixed(2)
+                    return (Number(this.price) + Number(this.totalPriceDan * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) - Number(this.subtrac99) + Number(this.sup_discounts)).toFixed(2)
                 } else {
-                    return (Number(this.price) + Number(this.drugprice * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) + Number(this.sup_discounts)).toFixed(2)
+                    return (Number(this.price) + Number(this.totalPriceDan * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) + Number(this.sup_discounts)).toFixed(2)
                 }
             }
         },

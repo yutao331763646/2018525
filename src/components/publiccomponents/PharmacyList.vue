@@ -4,7 +4,7 @@
        <!-- <mu-radio nativeValue="simple2" v-model="value"></mu-radio> -->
          <!-- <mu-radio :nativeValue="text.supplier_id" :label="text.name" v-model="value"></mu-radio> -->
         <div>
-            <!-- <span>{{text.name}}</span> -->
+            <span>{{text.name}}</span>
             <span>{{text.address}}</span>
         </div>
     </div>
