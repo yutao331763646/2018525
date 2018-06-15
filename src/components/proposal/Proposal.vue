@@ -224,7 +224,7 @@
                     <mu-list-item v-if="sup_discountsz" :title="defaults.discounts.name" :afterText="'￥'+sup_discounts.toFixed(2)" class="redcoloe" />
                     <mu-divider v-if="sup_discountsz" />
 
-                    <mu-list-item title="总计" :afterText="'￥'+totalprice" class="totalprice" />
+                    <mu-list-item title="总计" :afterText="'￥'+Number(totalprice).toFixed(2)" class="totalprice" />
                 </mu-list>
             </mu-flexbox>
 
@@ -991,7 +991,7 @@ export default {
         //     let bool = 'total' in  x[0]
         //     if (bool) {
         //         console.log("带价格的供应商")
-                
+
         //     } else {
         //         console.log("不带价格的供应商")
         //     }
@@ -1015,13 +1015,17 @@ export default {
         this.pinkageSup();
         // this.ispinkageSupz();
         // this.vtotalprice();
+        console.log(this.defaults.serviceArr)
+        let keyArr = Object.keys(this.defaults.serviceArr)
+        console.log(keyArr)
+        this.peisonged = keyArr[0]
     },
     updated() {
         this.ispinkageSupz();
         this.gm();
         // this.totalPriceDan()
-        console.log("单贴费用  "+this.totalPriceDan)
-        console.log("总价"+this.totalprice)
+        console.log("单贴费用  " + this.totalPriceDan)
+        console.log("总价" + this.totalprice)
     },
     computed: {
         // 全局共享的数据
@@ -1047,7 +1051,7 @@ export default {
                 return false
             }
         },
-            // 单贴药品费用
+        // 单贴药品费用
         totalPriceDan() {
             console.log("======================================")
             console.log(this.defaults)
@@ -1057,19 +1061,19 @@ export default {
             //     x = isTrue[item]
             // }
             // console.log('total' in x[0])
-            let bool='total' in this.defaults
+            let bool = 'total' in this.defaults
             // let bool = 'total' in  x[0]
             if (bool) {
                 console.log(this.defaults.total)
                 return this.defaults.total
                 // console.log("带价格的供应商")
-                
+
             } else {
                 return this.drugprice
                 // console.log("不带价格的供应商")
             }
         },
-    
+
         // 代煎费
         decoctings() {
 
@@ -1107,9 +1111,9 @@ export default {
                 return Number(0).toFixed(2)
             } else {
                 if (this.pinkageSupz) {
-                    return (Number(this.price) + Number(this.totalPriceDan * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) - Number(this.subtrac99) + Number(this.sup_discounts)).toFixed(2)
+                    return (Number(this.price) + Number(this.totalPriceDan * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) - Number(this.subtrac99) + Number(this.sup_discounts)).toFixed(2) + Number(this.defaults.serviceArr[this.serviceType.type].serve_money)
                 } else {
-                    return (Number(this.price) + Number(this.totalPriceDan * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) + Number(this.sup_discounts)).toFixed(2)
+                    return (Number(this.price) + Number(this.totalPriceDan * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) + Number(this.sup_discounts)).toFixed(2) + Number(this.defaults.serviceArr[this.serviceType.type].serve_money)
                 }
             }
         },
