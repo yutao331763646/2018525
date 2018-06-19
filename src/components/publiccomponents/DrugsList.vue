@@ -1,7 +1,11 @@
 <template>
     <div class="drugslist">
-        <span>{{propss.drugName}}</span>
-        <span>{{propss.type}}</span>
+        <div class="drugName">
+
+            <span>{{propss.drugName}}</span>
+            <span>{{propss.type}}</span>
+        </div>
+        <span>{{propss.num+propss.unit}}</span>
     </div>
 </template>
 
@@ -15,6 +19,8 @@ export default {
     },
     methods: {
 
+    },
+    mounted() {
     }
 }
 </script>
@@ -25,18 +31,21 @@ export default {
   background: #e1d0a7;
   padding-left: 20px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  span {
-    display: block;
-  }
-  span:first-of-type {
-    font-size: 0.25rem;
-  }
-  span:last-of-type {
-    font-size: 0.18rem;
-    color: #999;
+  align-items: center;
+  padding-right: 20px;
+  //   flex-direction: column;
+  justify-content: space-between;
+  .drugName {
+    span {
+      display: block;
+    }
+    span:first-of-type {
+      font-size: 0.25rem;
+    }
+    span:last-of-type {
+      font-size: 0.18rem;
+      color: #999;
+    }
   }
 }
 </style>

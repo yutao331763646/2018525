@@ -10,7 +10,7 @@
             </mu-dialog>
             <mu-flat-button slot="right" label="保存" color="white" @click="storeFang()" />
         </mu-appbar>
-        <div class=editdrug>
+        <div class='editdrug' ref="scrollTops">
             <ul class="lists">
                 <li class="list" v-for="(item,index) in drugNameOkLists" :key="index">
 
@@ -113,7 +113,7 @@
             </mu-flexbox>
         </div>
         <mu-toast v-if="toast" :message="toastMsg" @close="hideToast" />
-        <mu-dialog :open="drugCL" title="超量啦" @close="closedrugCL">
+        <mu-dialog :open="drugCL" title="超量啦">
             超量啦,确定输入吗？
             <mu-flat-button slot="actions" @click="closedrugCL" primary label="取消" />
             <mu-flat-button slot="actions" primary @click="drugCLy" label="确定" />
@@ -390,6 +390,7 @@ export default {
         drugCLy() {
             this.drugCL = false;
             this.is_abnormal = 1;
+            this.inputNumOk()
         },
         // 删除数字
         deleteNum() {
@@ -401,6 +402,7 @@ export default {
             }
         },
         inputNumOk() {
+            this.onScrollTop();
             if (this.numOklActive) {
                 let idArr = [];//新数组保存id
                 this.drugNameOkLists.forEach((item) => {
@@ -511,6 +513,7 @@ export default {
             let y = Math.ceil(x * 100);
             this.$emit("storeFange", (y / 100).toFixed(2))
             this.$emit("ispinkageSupz")
+            this.$emit("hiddenclassfalse", false)
         },
         chooseexps(id) {
             let _this = this,
@@ -572,10 +575,16 @@ export default {
         },
         closedialogpwjj2() {
             this.dialogpwjj2 = false
-        }
+        },
+        onScrollTop() {
+            this.$refs.scrollTops.scrollTop = this.$refs.scrollTops.scrollHeight
+        },
     },
     mounted() {
         this.signCFFF();
+    },
+    updated() {
+        this.onScrollTop();
     },
     computed: {
         ...mapState({
@@ -671,6 +680,8 @@ export default {
 .editdrug {
   width: 100%;
   background: #f7f7f7;
+  height: 400px;
+  overflow-y: auto;
   .lists {
     margin: 0 auto;
     display: flex;
@@ -679,7 +690,7 @@ export default {
     padding: 10px;
     .list {
       width: 2.9rem;
-      min-height: 30px;
+      min-height: 40px;
       background: #fff;
       margin-bottom: 10px;
       display: flex;

@@ -176,6 +176,13 @@ dd {
   .imagesee{
       margin-top: 20px;
   }
+  .zidingyi .mu-text-field-input{
+    border-bottom: 1px solid #ccc;
+}
+.zdypr{
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
 /* 
 .editdrug {
     width: 100%;

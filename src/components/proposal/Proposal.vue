@@ -1,156 +1,153 @@
 <template>
     <div>
-        <!-- <mu-appbar title="YuTao" class="topappbar">
-			<mu-icon-button icon="keyboard_arrow_left" slot="left" :size="52" />
-			<mu-icon-button icon="add" slot="right" />
-		</mu-appbar> -->
-        <mu-flexbox orient=vertical class="content">
-            <!-- 输入患者姓名及年龄性别 -->
-            <mu-flexbox class="yongfa">
-                <mu-content-block>用户： </mu-content-block>
-                <mu-raised-button :label="this.userinfos.username" primary />
-                <mu-raised-button :label="this.userinfos.sex" primary />
-                <mu-raised-button :label="this.userinfos.age" primary />
-            </mu-flexbox>
-            <mu-divider/>
-
-            <!-- 病症 -->
-            <mu-flexbox wrap="wrap">
-                <mu-chip v-for="(item,index) in actives" :key="index" @delete="diseaseClose(index)" showDelete style="line-height:26px;margin-right:10px;margin-top:5px;margin-bottom:5px">
-                    {{item}}
-                </mu-chip>
-            </mu-flexbox>
-            <mu-flexbox class="disease_name proposal" orient="horizontal">
-                <div class="seach_disease">
-                    <input type="text" placeholder="请输入病症名" @input="handleInputdiseasecs" v-model="diseaseNamecs" ref="diseaseFocuscs">
-                    <ul v-if="openDiseaseListcs">
-                        <li v-for="(item,index) in diseasescs" :key="index" @click="chooseDiseasecs(item)">{{item.name}}</li>
-                    </ul>
-                </div>
-            </mu-flexbox>
-            <mu-divider />
-
-            <!-- 方案补充收费 -->
-            <mu-flexbox class="f_nob proposal" orient="horizontal" @click.native="dialog3 = true">
-                <mu-content-block>方案补充收费</mu-content-block>
-                <mu-raised-button class="demo-raised-button" :label="'￥'+price" labelPosition="before" icon="keyboard_arrow_right" />
-                <mu-dialog :open="dialog3" title="价格" @close="closefnob">
-                    <mu-list>
-                        <mu-list-item title="免费" @click="chooseonly('免费')">
-                            <mu-icon slot="left" value="perm_identity" />
-                        </mu-list-item>
-                        <mu-list-item title="￥10" @click="chooseonly('10')">
-                            <mu-icon slot="left" value="face" />
-                        </mu-list-item>
-                        <mu-list-item title="￥20" @click="chooseonly('20')">
-                            <mu-icon slot="left" value="face" />
-                        </mu-list-item>
-                        <mu-list-item title="￥50" @click="chooseonly('50')">
-                            <mu-icon slot="left" value="face" />
-                        </mu-list-item>
-                        <mu-list-item title="￥100" @click="chooseonly('100')">
-                            <mu-icon slot="left" value="face" />
-                        </mu-list-item>
-                    </mu-list>
-                </mu-dialog>
-            </mu-flexbox>
-            <mu-divider/>
-            <!--用药建议标题 -->
-            <mu-flexbox class="proposl proposal" v-if="zhongyaopinpianshow">
-                <mu-content-block>用药建议： </mu-content-block>
-                <mu-raised-button class="demo-raised-button" label="保存为经验方" @click="getexpclassify" />
-                <!-- <mu-raised-button class="demo-raised-button" label="保存为经验方" @click="storeExpS" />  -->
-            </mu-flexbox>
-            <mu-divider v-if="zhongyaopinpianshow" />
-        </mu-flexbox>
-        <!-- 药品容器 -->
-        <mu-flexbox class="drugslist" v-if="zhongyaopinpianshow">
-            <drugslist v-for="(item,index) in datas2" :propss="item" :key="index"></drugslist>
-            <!-- <drugslist></drugslist> -->
-        </mu-flexbox>
-
-        <!-- /*/*/*/*/*/*/*/*/*/*/* -->
-        <mu-flexbox orient=vertical class="content">
-
-            <!-- 添加方案按钮 -->
-            <mu-flexbox class="add_af" v-if="zhongyaopinpianshow">
-                <mu-raised-button label="添加方案" class="demo-raised-button" @click.native="openDrawerFang1" />
-                <mu-drawer right :open="openDrawerFang" @close="toggle()" class="mudrawer">
-
-                    <adddrugs @storeFange='storeFangs'></adddrugs>
-
-                </mu-drawer>
-            </mu-flexbox>
-            <mu-divider v-if="zhongyaopinpianshow" />
-            <div style="width:100%">
+        <div :class="{hiddenClass:hiddenClass}">
+            <mu-flexbox orient=vertical class="content">
+                <!-- 输入患者姓名及年龄性别 -->
                 <mu-flexbox class="yongfa">
-                    <mu-content-block>用法： </mu-content-block>
-                    <mu-raised-button label="内服" :secondary="yongfa==0" @click="yongfac(0)" />
-                    <mu-raised-button label="外用" :secondary="yongfa==1" @click="yongfac(1)" />
+                    <mu-content-block>用户： </mu-content-block>
+                    <mu-raised-button :label="this.userinfos.username" primary />
+                    <mu-raised-button :label="this.userinfos.sex" primary />
+                    <mu-raised-button :label="this.userinfos.age" primary />
                 </mu-flexbox>
                 <mu-divider/>
 
-                <mu-flexbox v-if="waiyong">
-                    <mu-text-field v-model="method_out" ref="waiyonginput" hintText="请输入用法" multiLine :rows="1" :rowsMax="6" fullWidth class="beizhu" />
+                <!-- 病症 -->
+                <mu-flexbox wrap="wrap">
+                    <mu-chip v-for="(item,index) in actives" :key="index" @delete="diseaseClose(index)" showDelete style="line-height:26px;margin-right:10px;margin-top:5px;margin-bottom:5px">
+                        {{item}}
+                    </mu-chip>
                 </mu-flexbox>
-                <mu-divider v-if="waiyong" />
-
-                <mu-flexbox orient="horizontal" class="proposal2" v-if="neifu">
-                    <!-- <div @click="picker">点我选择</div> -->
-                    <mu-content-block>共</mu-content-block>
-                    <mu-raised-button :label="data1num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                    <mu-content-block>贴，</mu-content-block>
-                    <mu-raised-button :label="data2num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                    <mu-content-block>日</mu-content-block>
-                    <mu-raised-button :label="data3num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                    <mu-content-block>贴，分</mu-content-block>
-                    <mu-raised-button :label="data4num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
-                    <mu-content-block>次服用</mu-content-block>
+                <mu-flexbox class="disease_name proposal" orient="horizontal">
+                    <div class="seach_disease">
+                        <input type="text" placeholder="请输入病症名" @input="handleInputdiseasecs" v-model="diseaseNamecs" ref="diseaseFocuscs">
+                        <ul v-if="openDiseaseListcs">
+                            <li v-for="(item,index) in diseasescs" :key="index" @click="chooseDiseasecs(item)">{{item.name}}</li>
+                        </ul>
+                    </div>
                 </mu-flexbox>
-                <mu-divider v-if="neifu" />
-            </div>
+                <mu-divider />
 
-            <!-- 医嘱 -->
-            <mu-flexbox class="disease_name proposal yizhu" orient="horizontal" @click.native="toggle()">
-                <mu-content-block>医嘱</mu-content-block>
-                <mu-raised-button :label="yiZhu" labelPosition="before" icon="keyboard_arrow_right" />
+                <!-- 方案补充收费 -->
+                <mu-flexbox class="f_nob proposal" orient="horizontal" @click.native="dialog3 = true">
+                    <mu-content-block>方案补充收费</mu-content-block>
+                    <mu-raised-button class="demo-raised-button" :label="'￥'+price" labelPosition="before" icon="keyboard_arrow_right" />
+                    <mu-dialog :open="dialog3" title="方案补充收费">
+                        <mu-list>
+                            <mu-raised-button v-for="(item,index) in fees" :key="index" :label="item" class="zdypr" :secondary="feeindex==index" @click="chooseonly(index,item)" />
 
+                            <mu-text-field v-model="zidingyipr" hintText="请输入自定义金额" type="number" class="zidingyi" @input="zidingyi" />
+
+                            <!-- <mu-list-item title="免费" @click="chooseonly('免费')">
+                        </mu-list-item>
+                        <mu-list-item title="￥10" @click="chooseonly('10')">
+                        </mu-list-item>
+                        <mu-list-item title="￥20" @click="chooseonly('20')">
+                        </mu-list-item>
+                        <mu-list-item title="￥50" @click="chooseonly('50')">
+                        </mu-list-item>
+                        <mu-list-item title="￥100" @click="chooseonly('100')">
+                        </mu-list-item>
+                        <mu-list-item >
+                            <mu-text-field hintText="请输入自定义金额" class="zidingyi"/>
+                        </mu-list-item> -->
+                        </mu-list>
+                        <!-- <mu-flat-button slot="actions" primary label="取消" /> -->
+                        <mu-flat-button slot="actions" primary label="确定" @click="closefnob" />
+                    </mu-dialog>
+                </mu-flexbox>
+                <mu-divider/>
+                <!--用药建议标题 -->
+                <mu-flexbox class="proposl proposal" v-if="zhongyaopinpianshow">
+                    <mu-content-block>用药建议： </mu-content-block>
+                    <mu-raised-button class="demo-raised-button" label="保存为经验方" @click="getexpclassify" />
+                    <!-- <mu-raised-button class="demo-raised-button" label="保存为经验方" @click="storeExpS" />  -->
+                </mu-flexbox>
+                <mu-divider v-if="zhongyaopinpianshow" />
             </mu-flexbox>
-            <mu-divider />
-            <mu-drawer right :open="openDrawer" class="mudrawer">
-                <mu-appbar title="医嘱">
-                    <mu-icon-button icon="keyboard_arrow_left" slot="left" @click.native="openDrawer = false" />
-                    <mu-flat-button slot="right" label="保存" color="white" @click="storeYi()" />
-                </mu-appbar>
-                <mu-list class="mulist">
-                    <!-- <mu-text-field v-model="valueYi" hintText="服药时间、忌口与禁忌、用药注意事项等（药房和患者均可见）" fullWidth :errorText="multiLineInputErrorText" @textOverflow="handleMultiLineOverflow" multiLine :rows="3" :rowsMax="6" :maxLength="1000" /> -->
-                    <!-- <mu-divider/> -->
-                    <!-- <mu-checkbox label="存为常用医嘱" uncheckIcon="panorama_fish_eye" checkedIcon="check_circle" /> -->
-                    <!-- <mu-tabs :value="activeTab" @change="handleTabChange" class="mutabs">
+            <!-- 药品容器 -->
+            <mu-flexbox class="drugslist" v-if="zhongyaopinpianshow">
+                <drugslist v-for="(item,index) in datas2" :propss="item" :key="index"></drugslist>
+                <!-- <drugslist></drugslist> -->
+            </mu-flexbox>
+
+            <!-- /*/*/*/*/*/*/*/*/*/*/* -->
+            <mu-flexbox orient=vertical class="content">
+
+                <!-- 添加方案按钮 -->
+                <mu-flexbox class="add_af" v-if="zhongyaopinpianshow">
+                    <mu-raised-button label="添加方案" class="demo-raised-button" @click.native="openDrawerFang1" />
+
+                </mu-flexbox>
+                <mu-divider v-if="zhongyaopinpianshow" />
+                <div style="width:100%">
+                    <mu-flexbox class="yongfa">
+                        <mu-content-block>用法： </mu-content-block>
+                        <mu-raised-button label="内服" :secondary="yongfa==0" @click="yongfac(0)" />
+                        <mu-raised-button label="外用" :secondary="yongfa==1" @click="yongfac(1)" />
+                    </mu-flexbox>
+                    <mu-divider/>
+
+                    <mu-flexbox v-if="waiyong">
+                        <mu-text-field v-model="method_out" ref="waiyonginput" hintText="请输入用法" multiLine :rows="1" :rowsMax="6" fullWidth class="beizhu" />
+                    </mu-flexbox>
+                    <mu-divider v-if="waiyong" />
+
+                    <mu-flexbox orient="horizontal" class="proposal2" v-if="neifu">
+                        <!-- <div @click="picker">点我选择</div> -->
+                        <mu-content-block>共</mu-content-block>
+                        <mu-raised-button :label="data1num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
+                        <mu-content-block>贴，</mu-content-block>
+                        <mu-raised-button :label="data2num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
+                        <mu-content-block>日</mu-content-block>
+                        <mu-raised-button :label="data3num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
+                        <mu-content-block>贴，分</mu-content-block>
+                        <mu-raised-button :label="data4num" @click="picker" icon="keyboard_arrow_down" labelPosition="before" rippleColor="red" />
+                        <mu-content-block>次服用</mu-content-block>
+                    </mu-flexbox>
+                    <mu-divider v-if="neifu" />
+                </div>
+
+                <!-- 医嘱 -->
+                <mu-flexbox class="disease_name proposal yizhu" orient="horizontal" @click.native="toggle()">
+                    <mu-content-block>医嘱</mu-content-block>
+                    <mu-raised-button :label="yiZhu" labelPosition="before" icon="keyboard_arrow_right" />
+
+                </mu-flexbox>
+                <mu-divider />
+                <mu-drawer right :open="openDrawer" class="mudrawer">
+                    <mu-appbar title="医嘱">
+                        <mu-icon-button icon="keyboard_arrow_left" slot="left" @click.native="openDrawer = false" />
+                        <mu-flat-button slot="right" label="保存" color="white" @click="storeYi()" />
+                    </mu-appbar>
+                    <mu-list class="mulist">
+                        <!-- <mu-text-field v-model="valueYi" hintText="服药时间、忌口与禁忌、用药注意事项等（药房和患者均可见）" fullWidth :errorText="multiLineInputErrorText" @textOverflow="handleMultiLineOverflow" multiLine :rows="3" :rowsMax="6" :maxLength="1000" /> -->
+                        <!-- <mu-divider/> -->
+                        <!-- <mu-checkbox label="存为常用医嘱" uncheckIcon="panorama_fish_eye" checkedIcon="check_circle" /> -->
+                        <!-- <mu-tabs :value="activeTab" @change="handleTabChange" class="mutabs">
                         <mu-tab value="ta1b1" icon="keyboard_hide" @active="yiZhuInput" />
                         <mu-tab value="tab2" title="快捷输入" />
                         <mu-tab value="tab3" title="常用医嘱" />
                     </mu-tabs> -->
-                    <!-- <mu-divider class="tabline" /> -->
-                    <mu-flexbox v-if="activeTab === 'tab2'" orient='vertical'>
-                        <mu-flexbox class="ftime" orient="horizontal">
-                            <mu-content-block>服药时间</mu-content-block>
-                        </mu-flexbox>
                         <!-- <mu-divider class="tabline" /> -->
-                        <mu-flexbox wrap="wrap">
-                            <mu-raised-button v-for="(item,index) in taTime" :key="index" :label="item" class="time" :secondary="timeactive==index" @click="addTime(item,index)" />
-                        </mu-flexbox>
-                        <mu-divider class="tabline" />
-                        <mu-flexbox class="ftime" orient="horizontal">
-                            <mu-content-block>忌口与禁忌</mu-content-block>
-                        </mu-flexbox>
-                        <mu-flexbox wrap="wrap">
-                            <!-- <mu-raised-button label="无" class="time" /> -->
-                            <mu-raised-button v-for="(item,index) in taboos" :key="index" :label="item" class="time" :secondary="true==tabooactive[index]" @click="addTaboo(item,index)" />
+                        <mu-flexbox v-if="activeTab === 'tab2'" orient='vertical'>
+                            <mu-flexbox class="ftime" orient="horizontal">
+                                <mu-content-block>服药时间</mu-content-block>
+                            </mu-flexbox>
+                            <!-- <mu-divider class="tabline" /> -->
+                            <mu-flexbox wrap="wrap">
+                                <mu-raised-button v-for="(item,index) in taTime" :key="index" :label="item" class="time" :secondary="timeactive==index" @click="addTime(item,index)" />
+                            </mu-flexbox>
+                            <mu-divider class="tabline" />
+                            <mu-flexbox class="ftime" orient="horizontal">
+                                <mu-content-block>忌口与禁忌</mu-content-block>
+                            </mu-flexbox>
+                            <mu-flexbox wrap="wrap">
+                                <!-- <mu-raised-button label="无" class="time" /> -->
+                                <mu-raised-button v-for="(item,index) in taboos" :key="index" :label="item" class="time" :secondary="true==tabooactive[index]" @click="addTaboo(item,index)" />
 
+                            </mu-flexbox>
                         </mu-flexbox>
-                    </mu-flexbox>
-                    <!-- <mu-flexbox v-if="activeTab === 'tab3'" orient="vertical">
+                        <!-- <mu-flexbox v-if="activeTab === 'tab3'" orient="vertical">
                         <mu-content-block class="tab3_list" @click="addComm()">
                             散落在指尖的阳光，我试着轻轻抓住光影的踪迹，它却在眉宇间投下一片淡淡的阴影。调皮的阳光掀动了四月的心帘，温暖如约的歌声渐起。似乎在诉说着，我也可以在漆黑的角落里，找到阴影背后的阳光，找到阳光与阴影奏出和谐的旋律。我要用一颗敏感赤诚的心迎接每一缕滑过指尖的阳光！
                         </mu-content-block>
@@ -158,98 +155,103 @@
                             散落在指尖的阳光，我试着轻轻抓住光影的踪迹，它却在眉宇间投下一片淡淡的阴影。调皮的阳光掀动了四月的心帘，温暖如约的歌声渐起。似乎在诉说着，我也可以在漆黑的角落里，找到阴影背后的阳光，找到阳光与阴影奏出和谐的旋律。我要用一颗敏感赤诚的心迎接每一缕滑过指尖的阳光！
                         </mu-content-block>
                     </mu-flexbox> -->
-                </mu-list>
-            </mu-drawer>
-            <!-- 购药前处方是否可见 -->
-            <mu-flexbox class="disease_name proposal" orient="horizontal" @click.native="isitvisible" v-if="zhongyaopinpianshow">
-                <mu-content-block>购药前处方是否可见</mu-content-block>
-                <mu-raised-button class="demo-raised-button" :label="isShow" labelPosition="before" icon="keyboard_arrow_right" />
-                <mu-dialog :open="dialogisitvisible" title="购药前处方是否可见">
-                    <mu-list>
-                        <mu-list-item title="可见" @click="chooseisitvisible('可见')"></mu-list-item>
-                        <mu-list-item title="不可见" @click="chooseisitvisible('不可见')"></mu-list-item>
                     </mu-list>
-                </mu-dialog>
-            </mu-flexbox>
-            <mu-divider v-if="zhongyaopinpianshow" />
-            <mu-flexbox>
-                <mu-text-field v-model="advise" hintText="输入备注" multiLine :rows="1" :rowsMax="6" fullWidth class="beizhu" />
-            </mu-flexbox>
-            <mu-divider />
-        </mu-flexbox>
-
-        <mu-flexbox orient="vertical" class="tuijya">
-            <!-- 推荐药房的弹出 -->
-            <ChoosePharmavy @pinkageSupze="pinkageSupzet" @peisong="peisongs" v-if="isShowT" />
-
-            <mu-flexbox wrap="wrap" v-if="updatedimgshow" class="imagesee">
-                <mu-paper :zDepth="1" class="addimg" v-if="addimginp">
-                    <mu-icon value="add" :size="36" class="addicon" />
-                    <mu-flat-button label="添加图片" class="demo-flat-button">
-                        <input type="file" @change='add_img' class="file-button">
-                    </mu-flat-button>
-                </mu-paper>
-
-                <mu-paper class="shiliimg" v-if="imgshili">
-                    <img src="../../../static/images/shili.png" alt="">
-                </mu-paper>
-
-                <mu-paper class="shiliimg absed" v-for="(item,index) in imgsrcs" :key="index">
-                    <img :src="item" alt="">
-                    <mu-icon value="remove_circle" color="red" :size="24" class="deleget" @click="deleteimg(index)" />
-                </mu-paper>
-
+                </mu-drawer>
+                <!-- 购药前处方是否可见 -->
+                <mu-flexbox class="disease_name proposal" orient="horizontal" @click.native="isitvisible" v-if="zhongyaopinpianshow">
+                    <mu-content-block>购药前处方是否可见</mu-content-block>
+                    <mu-raised-button class="demo-raised-button" :label="isShow" labelPosition="before" icon="keyboard_arrow_right" />
+                    <mu-dialog :open="dialogisitvisible" title="购药前处方是否可见">
+                        <mu-list>
+                            <mu-list-item title="可见" @click="chooseisitvisible('可见')"></mu-list-item>
+                            <mu-list-item title="不可见" @click="chooseisitvisible('不可见')"></mu-list-item>
+                        </mu-list>
+                    </mu-dialog>
+                </mu-flexbox>
+                <mu-divider v-if="zhongyaopinpianshow" />
+                <mu-flexbox>
+                    <mu-text-field v-model="advise" hintText="输入备注" multiLine :rows="1" :rowsMax="6" fullWidth class="beizhu" />
+                </mu-flexbox>
+                <mu-divider />
             </mu-flexbox>
 
-            <!-- 价格列表 -->
-            <mu-flexbox v-if="zhongyaopinpianshow">
-                <mu-list class="pricelist">
-                    <mu-list-item title="费用明细" />
-                    <mu-divider/>
-                    <mu-list-item title="方案补充收费" :afterText="'￥'+Number(price).toFixed(2)" />
-                    <mu-divider/>
-                    <mu-list-item title="药费" :afterText="'单贴￥'+totalPriceDan+ 'X 帖数'+data1num+' = ￥'+(totalPriceDan*data1num).toFixed(2)" />
-                    <mu-divider/>
+            <mu-flexbox orient="vertical" class="tuijya">
+                <!-- 推荐药房的弹出 -->
+                <ChoosePharmavy @pinkageSupze="pinkageSupzet" @peisong="peisongs" v-if="isShowT" />
 
-                    <mu-list-item v-if="isshowservemoney" title="加工费" :afterText="'￥'+defaults.serviceArr[serviceType.type].serve_money" />
-                    <mu-divider v-if="isshowservemoney" />
+                <mu-flexbox wrap="wrap" v-if="updatedimgshow" class="imagesee">
+                    <mu-paper :zDepth="1" class="addimg" v-if="addimginp">
+                        <mu-icon value="add" :size="36" class="addicon" />
+                        <mu-flat-button label="添加图片" class="demo-flat-button">
+                            <input type="file" @change='add_img' class="file-button">
+                        </mu-flat-button>
+                    </mu-paper>
 
-                    <mu-list-item v-if="isShowdecoctings" title="代煎费" :afterText="'帖数'+data1num +'X '+data4num+'包 = ￥'+decoctings" />
-                    <mu-divider v-if="isShowdecoctings" />
-                    <mu-list-item title="代送费" :afterText="'￥'+g_m" />
-                    <mu-divider/>
-                    <mu-list-item v-if="pinkageSupz" title="供应商专属优惠满99包邮" :afterText="'￥- '+subtrac99" class="redcoloe" />
-                    <mu-divider v-if="pinkageSupz" />
+                    <mu-paper class="shiliimg" v-if="imgshili">
+                        <img src="../../../static/images/shili.png" alt="">
+                    </mu-paper>
 
-                    <mu-list-item v-if="sup_discountsz" :title="defaults.discounts.name" :afterText="'￥'+sup_discounts.toFixed(2)" class="redcoloe" />
-                    <mu-divider v-if="sup_discountsz" />
+                    <mu-paper class="shiliimg absed" v-for="(item,index) in imgsrcs" :key="index">
+                        <img :src="item" alt="">
+                        <mu-icon value="remove_circle" color="red" :size="24" class="deleget" @click="deleteimg(index)" />
+                    </mu-paper>
 
-                    <mu-list-item title="总计" :afterText="'￥'+Number(totalprice).toFixed(2)" class="totalprice" />
-                </mu-list>
+                </mu-flexbox>
+
+                <!-- 价格列表 -->
+                <mu-flexbox v-if="zhongyaopinpianshow">
+                    <mu-list class="pricelist">
+                        <mu-list-item title="费用明细" />
+                        <mu-divider/>
+                        <mu-list-item title="方案补充收费" :afterText="'￥'+Number(price).toFixed(2)" />
+                        <mu-divider/>
+                        <mu-list-item title="药费" :afterText="'单贴￥'+totalPriceDan+ 'X 帖数'+data1num+' = ￥'+(totalPriceDan*data1num).toFixed(2)" />
+                        <mu-divider/>
+
+                        <mu-list-item v-if="isshowservemoney" title="加工费" :afterText="'￥'+defaults.serviceArr[serviceType.type].serve_money" />
+                        <mu-divider v-if="isshowservemoney" />
+
+                        <mu-list-item v-if="isShowdecoctings" title="代煎费" :afterText="'帖数'+data1num +'X '+data4num+'包 = ￥'+decoctings" />
+                        <mu-divider v-if="isShowdecoctings" />
+                        <mu-list-item title="代送费" :afterText="'￥'+g_m" />
+                        <mu-divider/>
+                        <mu-list-item v-if="pinkageSupz" title="供应商专属优惠满99包邮" :afterText="'￥- '+subtrac99" class="redcoloe" />
+                        <mu-divider v-if="pinkageSupz" />
+
+                        <mu-list-item v-if="sup_discountsz" :title="defaults.discounts.name" :afterText="'￥'+sup_discounts.toFixed(2)" class="redcoloe" />
+                        <mu-divider v-if="sup_discountsz" />
+
+                        <mu-list-item title="总计" :afterText="'￥'+Number(totalprice).toFixed(2)" class="totalprice" />
+                    </mu-list>
+                </mu-flexbox>
+
+                <mu-flexbox class="submissions">
+                    <mu-raised-button label="完成" secondary @click="submissions" />
+                </mu-flexbox>
             </mu-flexbox>
+            <mu-toast v-if="toast" :message="toastMsg" @close="hideToast" />
+            <mu-dialog :open="dialogStoreJy" title="保存为经验方">
+                <mu-flexbox>
+                    <mu-flexbox-item grow="1">
+                        <mu-flat-button label="经验方名称：" class="expname" />
+                    </mu-flexbox-item>
+                    <mu-flexbox-item grow="2">
+                        <mu-text-field hintText="请输入经验方名" class="expnameinput" v-model="n" ref="expnameinput" />
+                    </mu-flexbox-item>
+                </mu-flexbox>
+                <mu-divider />
+                <mu-flexbox wrap="wrap">
+                    <mu-raised-button :label="item.name" class="exp" v-for="(item,index) in classifys" :key="index" :secondary="classindex==index" @click="chooseClassfys(index,item.id)" />
 
-            <mu-flexbox class="submissions">
-                <mu-raised-button label="完成" secondary @click="submissions" />
-            </mu-flexbox>
-        </mu-flexbox>
-        <mu-toast v-if="toast" :message="toastMsg" @close="hideToast" />
-        <mu-dialog :open="dialogStoreJy" title="保存为经验方">
-            <mu-flexbox>
-                <mu-flexbox-item grow="1">
-                    <mu-flat-button label="经验方名称：" class="expname" />
-                </mu-flexbox-item>
-                <mu-flexbox-item grow="2">
-                    <mu-text-field hintText="请输入经验方名" class="expnameinput" v-model="n" ref="expnameinput" />
-                </mu-flexbox-item>
-            </mu-flexbox>
-            <mu-divider />
-            <mu-flexbox wrap="wrap">
-                <mu-raised-button :label="item.name" class="exp" v-for="(item,index) in classifys" :key="index" :secondary="classindex==index" @click="chooseClassfys(index,item.id)" />
+                </mu-flexbox>
+                <mu-flat-button slot="actions" @click="closedialogStoreJy" primary label="取消" />
+                <mu-flat-button slot="actions" primary @click="closedialogStoreJyY" label="确定" />
+            </mu-dialog>
 
-            </mu-flexbox>
-            <mu-flat-button slot="actions" @click="closedialogStoreJy" primary label="取消" />
-            <mu-flat-button slot="actions" primary @click="closedialogStoreJyY" label="确定" />
-        </mu-dialog>
+        </div>
+        <mu-drawer right :open="openDrawerFang" @close="toggle()" class="mudrawer">
+            <adddrugs @storeFange='storeFangs' @hiddenclassfalse='hiddenclassfalses'></adddrugs>
+        </mu-drawer>
     </div>
 </template>
 
@@ -277,6 +279,7 @@ export default {
             // dialog2: false,
             dialog3: false,
             dialogisitvisible: false,
+            hiddenClass:false,
             price: "20",
             data1num: "5",
             data2num: '1',
@@ -285,6 +288,9 @@ export default {
             yiZhu: '必填',
             pharmacy_dialog: true,
             bottomPopup: false,
+            fees: ['免费', '￥10', '￥20', '￥50', '￥100'],//诊费
+            feeindex: 2,
+            zidingyipr: '',//双向绑定的自定义诊费
             valueYi: '',//医嘱v-model
             openDrawer: false,//医嘱
             multiLineInputErrorText: '',
@@ -448,11 +454,22 @@ export default {
         //  方案补充收费弹窗
         closefnob() {
             this.dialog3 = false
+            // console.log("诊费"+this.price)
         },
         //  方案补充收费的选择
-        chooseonly(e) {
-            this.price = e;
-            this.dialog3 = false
+        chooseonly(index, item) {
+            console.log(item)
+            this.price = item.replace('￥', '');
+            this.feeindex = index;
+            this.zidingyipr = '';
+            // this.dialog3 = false
+        },
+        zidingyi(newVal) {
+            console.log(newVal)
+            if (newVal) {
+                this.feeindex = 999;
+                this.price = this.zidingyipr
+            }
         },
         picker() {
             let picker = new Picker({
@@ -602,6 +619,7 @@ export default {
         },
         // 打开输入药品弹窗时 获取配伍禁忌列表和药品列表
         openDrawerFang1() {
+            this.hiddenClass=true;
             this.getAllpwjj();
             let _this = this,
                 param = new FormData();
@@ -730,9 +748,15 @@ export default {
             })
         },
         storeFangs(val) {
+            console.log(val)
             this.drugprice = val
 
         },
+        hiddenclassfalses(val){
+            console.log(val)
+            this.hiddenClass=val
+        },
+     
         pinkageSup() {
             let _this = this;
             axios.post('?do=pinkageSup'

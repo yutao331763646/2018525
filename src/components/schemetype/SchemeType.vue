@@ -33,7 +33,7 @@
         <mu-flexbox wrap="wrap" :gutter=0 class="type">
             <!-- 药品类型 -->
             <mu-flexbox-item v-for="(item,index) in typedata" :key="index" @click.native="chooseType(index,item.type)">
-                <mu-raised-button :label="item.name" :secondary="item.type==typeindex" />
+                <mu-raised-button :label="item.name" :secondary="item.type==typeindex" class="choseetpe"/>
             </mu-flexbox-item>
         </mu-flexbox>
         <mu-flexbox class="tuijya">
@@ -42,7 +42,7 @@
         </mu-flexbox>
         <mu-flexbox class="nextstep" @click.native="goProposal">
             <!-- 跳到开方页面 -->
-            <mu-raised-button label="下一步" secondary :disabled="disableds" />
+            <mu-raised-button label="下一步" class="netstep" secondary :disabled="disableds" />
         </mu-flexbox>
         <mu-toast v-if="toast" :message="toastMsg" @close="hideToast" />
     </div>

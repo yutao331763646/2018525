@@ -2,10 +2,10 @@
     <div class="selectusers">
         <mu-flexbox class="search">
             <mu-flexbox-item>
-                <mu-text-field hintText="请输入手机号码" v-model="userNum" type="number" ref="inputs" />
+                <mu-text-field hintText="请输入手机号码"  v-model="userNum" type="number" ref="inputs" />
             </mu-flexbox-item>
-            <mu-flexbox-item @click.native="search">
-                <mu-raised-button label="搜索" secondary/>
+            <mu-flexbox-item @click.native="search" class="ceshise">
+                <mu-raised-button label="搜索" secondary />
             </mu-flexbox-item>
         </mu-flexbox>
         <mu-divider/>
@@ -83,7 +83,7 @@ export default {
         return {
             searcjs: false,
             news: false,
-            userNum: '15618588238',
+            userNum: '',
             userLists: [],
             toast: false,
             toastMsg: '',//吐司的msg
@@ -216,7 +216,6 @@ export default {
                         str = this.sex + "个月"
                     }
                     if (this.uname) {
-                        // console.log("如果是新增用户")
                         //如果是新增用户
                         this.userinfo({
                             username: this.uname,
@@ -225,7 +224,6 @@ export default {
                         });
                     } else {
                         if (!this.users.usename) {
-                            // console.log("没有点击，选择默认第一个")
                             //没有点击，选择默认第一个
                             console.log(this.userLists)
                             this.userinfo({
@@ -234,7 +232,6 @@ export default {
                                 sex: this.userLists[0].sex2
                             });
                         } else {
-                            // console.log("点击选择其他患者")
                             // 点击选择其他患者
                             this.userinfo({
                                 username: this.users.usename,
