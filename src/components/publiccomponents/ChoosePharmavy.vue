@@ -7,11 +7,11 @@
         </mu-flexbox>
         <!--非弹出层 的默认选中药房 -->
         <div class="pharmacylist" v-if="tuishow" style="padding-left:10px;border:1px solid #ccc;padding: 5px 0 5px 20px;width:100%;">
-            <mu-radio disabled :label="defaults.name" />
+            <!-- <mu-radio disabled :label="defaults.name" /> -->
             <!-- <img src="../../assets/erweima.png" alt=""> -->
             <div>
-                <!-- <span>{{defaults.name}}</span> -->
-                <span style="padding-left:30px;">{{defaults.address}}</span>
+                <span>{{defaults.name}}</span>
+                <span>{{defaults.address}}</span>
             </div>
         </div>
         <mu-popup position="bottom" popupClass="recommended_pharmacy" :open="bottomPopup">
@@ -25,10 +25,10 @@
             </mu-flexbox>
             <mu-list>
                 <!-- 弹出层的药房 -->
-                <div v-for="(item,index) in pharmavyDatas.select[num]" :key="index" class="pharmavyDataslist">
+                <div v-for="(item,index) in pharmavyDatas.select[num]" :key="index"  :class="{acited:suindex==index}" class="pharmavyDataslist">
 
                     <!-- <mu-radio :nativeValue="item.name" :label="item.name" name="group" v-model="value" @click.native="choosePhar(index,item)"></mu-radio> -->
-                    <pharmacylist :text="item" :class="{acited:suindex==index}" @click.native="choosePhar(index,item)" />
+                    <pharmacylist :text="item" @click.native="choosePhar(index,item)" />
                 </div>
             </mu-list>
         </mu-popup>
@@ -37,6 +37,7 @@
             <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item.name" :secondary="index==typeacti" @click.native="chooseType(index,item)" />
         </mu-flexbox>
         <mu-toast v-if="toast" message="当前用药类型没有推荐药房" />
+        <mu-toast v-if="toast2" message="请选择一个供应商" />
     </div>
 </template>
 
@@ -52,6 +53,7 @@ export default {
         return {
             // value: '',
             bottomPopup: false,
+            toast2: false,
             // checkindex: 50,// 初始化第一个栏块高亮
             server: {
                 1: '代煎代送',
@@ -72,31 +74,52 @@ export default {
             },//满减活动的供应商id
             typeacti: 0,
             suindex: 0,
+            connt: 0,//用来记录用户是否手动点击选中供应商，没有点击的话就默认第一个
         }
     },
     methods: {
+        signCFFF() {
+            if (!this.repeatOrder.data) {
+                console.log("正常流程")
+            } else {
+                let give_type = this.repeatOrder.data.orderInfo.give_type;
+                let keyArr = Object.keys(this.defaults.serviceArr)
+                let len = keyArr.indexOf(give_type)
+                console.log(this.defaults)
+                console.log("chongfang" + len)
+                this.typeacti = len
+            }
+        },
         openpopup(position) {
-
+            this.connt = 0
             this[position + 'Popup'] = true;
             this.servers = [];
             this.typeindex2 = 0;
-
-
+            this.suindex = 999;
             // 先判断是否重方复方
             if (!this.repeatOrder.data) {
                 // 再判断容器内是否有药，无药的话默认走上一步的选择类型请求供应商信息
+                console.log("=======================================================")
+                console.log(this.datas2)
                 if (this.datas2.length < 1) {
-                    this.pharmavyData({ type: this.type, sid: '' })
+                    this.pharmavyData({ type: this.type, sid: '', give_type: '' })
                 } else {
                     // 有药的话  用容器内的药品去拉新的供应商信息
-                    console.log(this.datas2)
-                    let data={
-                          drug_code:  this.datas2
+
+                    let data = {
+                        drug_code: this.datas2
                     }
-                    axios.post('?do=selectSup',  Qs.stringify(data))
+                    axios.post('?do=selectSup', Qs.stringify(data))
                         .then((res) => {
+                            console.log()
                             console.log(res)
                             this.pharmavyDatass(res.data.data);
+
+                            let keyArr = Object.keys(this.pharmavyDatas.select)
+                            let len = keyArr.indexOf(this.serviceType.type)
+                            this.typeindex2 = len
+                            this.num = keyArr[len]
+
                         })
                         .catch((err) => {
                             console.log(err);
@@ -104,11 +127,33 @@ export default {
                 }
             } else {
                 console.log("重方")
-                this.pharmavyData({
-                    type: this.repeatOrder.data.orderInfo.drug_type,
-                    sid: this.repeatOrder.data.orderInfo.supplier_id,
-                    give_type: this.repeatOrder.data.orderInfo.give_type
-                })
+                console.log(this.datas2)
+                if (this.datas2.length < 1) {
+
+                    this.pharmavyData({
+                        type: this.repeatOrder.data.orderInfo.drug_type,
+                        sid: this.repeatOrder.data.orderInfo.supplier_id,
+                        give_type: this.repeatOrder.data.orderInfo.give_type
+                    })
+                } else {
+                    let data = {
+                        drug_code: this.datas2
+                    }
+                    axios.post('?do=selectSup', Qs.stringify(data))
+                        .then((res) => {
+                            console.log(res)
+                            this.pharmavyDatass(res.data.data);
+
+                            let keyArr = Object.keys(this.pharmavyDatas.select)
+                            let len = keyArr.indexOf(this.serviceType.type)
+                            this.typeindex2 = len
+                            this.num = keyArr[len]
+
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });
+                }
             }
 
             let keys = Object.keys(this.pharmavyDatas.select);
@@ -133,59 +178,67 @@ export default {
         },
         //保存选择的药房
         storePhar(position) {
-         
-            this[position + 'Popup'] = false;
 
-            let base = 0;
-            this.pinkageSups[1].forEach((item) => {
-                if (this.type == 1 && item == this.sid) {
-                    base += 1;
-                }
-            })
-            this.pinkageSups[2].forEach((item) => {
-                if (this.type == 2 && item == this.sid) {
-                    base += 1;
-                }
-            })
-            if (base == 0) {
-                this.$emit('pinkageSupze', false);
+            console.log("shifoudianjil" + this.connt)
+            console.log(this.pharmavyDatas.select[this.num])
+            if (!this.connt) {
+
+                this.toast2 = true
+                if (this.toastTimer) clearTimeout(this.toastTimer)
+                this.toastTimer = setTimeout(() => { this.toast2 = false }, 2000)
+                console.log("请选择一个供应商")
             } else {
-                this.$emit('pinkageSupze', true);
+
+                this[position + 'Popup'] = false;
+
+                let base = 0;
+                this.pinkageSups[1].forEach((item) => {
+                    if (this.type == 1 && item == this.sid) {
+                        base += 1;
+                    }
+                })
+                this.pinkageSups[2].forEach((item) => {
+                    if (this.type == 2 && item == this.sid) {
+                        base += 1;
+                    }
+                })
+                if (base == 0) {
+                    this.$emit('pinkageSupze', false);
+                } else {
+                    this.$emit('pinkageSupze', true);
+                }
             }
+
+
 
 
         },
         clickType(index, type, item) {
-            console.log(item.type)
             this.num = type;
             this.typeindex2 = index;
-            // console.log(this.defaults.serviceArr)
             // 被点击的服务类型的id在默认配送方式的的索引，让他高亮
             let keyArr = Object.keys(this.defaults.serviceArr)
-            console.log(keyArr)
             let len = keyArr.indexOf(item.type)
-            // 索引就是len
-            console.log(len)
             this.typeacti = len
-            // console.log("默认选中的供应商是：")
-            // console.log(this.defaults)
             this.$emit('peisong', item.type)
             this.typeindex({ a: index, b: item })
 
         },
         choosePhar(index, item) {
-
+            this.connt += 1;
+            this.changedefaults(item)
+            console.log(item)
+            console.log("选择供应商")
+            console.log(this.serviceType)
+            console.log(this.defaults.serviceArr)
             this.suindex = index;
             let keyArr = Object.keys(this.defaults.serviceArr)
             let len = keyArr.indexOf(this.num)
+            console.log(len)
             this.typeacti = len
-            this.changedefaults(item)
         },
         chooseType(index, item) {
-            // console.log(item.type)
-            console.log(item)
             this.typeacti = index;
-            // console.log(this.defaults.serviceArr)
             this.$emit('peisong', item.type)
             this.typeindex({ a: index, b: item })
         },
@@ -197,12 +250,12 @@ export default {
         ]),
     },
     created() {
-
+        // this.signCFFF();
     },
     beforeMount() {
     },
     mounted() {
-
+        this.signCFFF();
     },
     beforeUpdate() {
     },
@@ -225,6 +278,7 @@ export default {
             sid: state => state.defaults.supplier_id,
             repeatOrder: state => state.repeatOrder,
             serviceType: state => state.serviceType,
+            repeatOrder: state => state.repeatOrder,
 
         }),
         serviceArrDefault() {
@@ -298,5 +352,16 @@ export default {
 }
 .acited {
   border: 1px solid red;
+}
+.mu-toast {
+  height: 39px;
+  width: 60%;
+  position: fixed;
+  left: 50%;
+  bottom: 50px;
+  margin-left: -30%;
+  line-height: 39px;
+  background-color: rgba(0, 0, 0, 0.6);
+  text-align: center;
 }
 </style>

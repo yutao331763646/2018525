@@ -1,8 +1,8 @@
 <template>
-    <div class="selectusers">
+    <div class="selectusers" :style="{height:height+'px'}">
         <mu-flexbox class="search">
             <mu-flexbox-item>
-                <mu-text-field hintText="请输入手机号码"  v-model="userNum" type="number" ref="inputs" />
+                <mu-text-field hintText="请输入手机号码" v-model="userNum" type="number" ref="inputs" />
             </mu-flexbox-item>
             <mu-flexbox-item @click.native="search" class="ceshise">
                 <mu-raised-button label="搜索" secondary />
@@ -11,10 +11,10 @@
         <mu-divider/>
         <mu-row gutter class="users" v-if="searcjs">
             <mu-col width="50" v-for="(item,index) in userLists" :key="index">
-                <mu-raised-button id="userse" :label="item|username" :primary="true" :secondary="active==index" @click="chooseUser(index,item)" :data-uid="item.id" />
+                <mu-raised-button id="userse" :label="item|username" :secondary="active==index" @click="chooseUser(index,item)" :data-uid="item.id" />
             </mu-col>
             <mu-col width="50">
-                <mu-raised-button label="新增" labelPosition="before" icon="add" primary @click.native="addNew()" />
+                <mu-raised-button label="新增" labelPosition="before" icon="add" @click.native="addNew()" />
             </mu-col>
         </mu-row>
 
@@ -95,6 +95,7 @@ export default {
             sex: 1,
             dataBase: 365,
             users: {},
+            height: window.screen.height,
         }
     },
     filters: {
@@ -112,7 +113,7 @@ export default {
 
         signCFFF() {
             let params = {
-                // "test": 0
+                // "test": 1
             }
             axios.post('?do=repeatOrder', Qs.stringify(params))
                 .then((res) => {
@@ -125,6 +126,11 @@ export default {
                         // 如果有用户信息  为重方
                         if (res.data.cfORff == "cf") {
                             console.log("重方")
+                            this.pharmavyData({
+                                type: res.data.data.orderInfo.drug_type,
+                                sid: res.data.data.orderInfo.supplier_id,
+                                give_type: res.data.data.orderInfo.give_type
+                            })
                             // console.log(res.data.data.userInfo)
                             let orther = res.data.data.userInfo.orther;
                             this.searcjs = true;
@@ -265,12 +271,16 @@ export default {
         },
         ...mapActions([
             'userinfo',
-            'repeatOrder'
+            'repeatOrder',
+            'pharmavyData'
 
         ]),
     },
     mounted() {
         this.signCFFF();
+        let height = window.screen.height;
+        this.height = height;
+        console.log(height)
 
     },
     computed: {
@@ -281,6 +291,9 @@ export default {
 }
 </script>
 <style  lang="less">
+.selectusers{
+    background: #f8f8f8
+}
 .search .mu-text-field-content {
   margin-top: 12px !important;
 }
@@ -350,6 +363,7 @@ export default {
   .search {
     padding: 0 20px;
     height: 47px;
+    background:#fff
   }
 
   .mu-raised-button {

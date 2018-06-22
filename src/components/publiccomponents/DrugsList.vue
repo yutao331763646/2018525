@@ -3,7 +3,7 @@
         <div class="drugName">
 
             <span>{{propss.drugName}}</span>
-            <span>{{propss.type}}</span>
+            <span>{{propss.proce_way}}</span>
         </div>
         <span>{{propss.num+propss.unit}}</span>
     </div>

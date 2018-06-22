@@ -18,8 +18,8 @@
                         <!-- <span class="delete">7</span> -->
                         <mu-icon value="remove_circle" color="red" class="delete" :size="18" @click="deletedrug(index)" />
                         <div>
-                            <span @click="chooseType(index,item.type)">{{item.drugName}}</span>
-                            <span class="jftype">{{item.type}}</span>
+                            <span @click="chooseType(index,item.proce_way)">{{item.drugName}}</span>
+                            <span class="jftype">{{item.proce_way}}</span>
                         </div>
                     </div>
                     <div>
@@ -112,7 +112,7 @@
                 </mu-flexbox>
             </mu-flexbox>
         </div>
-        <mu-toast v-if="toast" :message="toastMsg" @close="hideToast" />
+        <mu-toast id="mutoast" v-if="toast" :message="toastMsg" @close="hideToast" />
         <mu-dialog :open="drugCL" title="超量啦">
             超量啦,确定输入吗？
             <mu-flat-button slot="actions" @click="closedrugCL" primary label="取消" />
@@ -136,8 +136,10 @@
 
 <script>
 import axios from "axios";
+import Qs from 'qs'
 import { mapActions } from 'vuex'
 import { mapState } from 'vuex'
+import { setTimeout } from 'timers';
 export default {
     data() {
         return {
@@ -198,7 +200,8 @@ export default {
                         unit: item.unit,
                         drug_id: item.drug_code,
                         max: item.max,
-                        is_abnormal: item.is_abnormal
+                        is_abnormal: item.is_abnormal,
+                        proce_way: item.proce_way
                     }
                 })
             }
@@ -234,17 +237,41 @@ export default {
         drutMatching(val) {
             let [arrEn, arrFinal] = [[], []];
 
-            this.drugs.forEach(item => {
+
+
+
+
+            let newDrugsZ = [],
+                newDrugsK = [];
+            this.drugs.forEach((item) => {
+                if (item.type == 1 || item.type == 3) {
+                    newDrugsZ.push(item)
+                }
+                if (item.type == 2) {
+                    newDrugsK.push(item)
+                }
+            })
+            console.log(newDrugsZ)
+            console.log(newDrugsK)
+            let newDrugsKs = [];
+            if (this.type == 1 || this.type == 3) {
+                newDrugsKs = newDrugsZ
+            } else if (this.type == 2) {
+                newDrugsKs = newDrugsK
+            }
+
+            newDrugsKs.forEach(item => {
                 arrEn.push(item.smple_code.indexOf(val.toLowerCase()))
             })
-            this.drugs.forEach((item, index) => {
+            newDrugsKs.forEach((item, index) => {
                 if (arrEn[index] != -1) {
                     arrFinal.push({
                         drugName: item.name,
                         sprice: item.sprice,
                         unit: item.unit,
                         drug_id: item.drug_id,
-                        max: item.max
+                        max: item.max,
+                        type: item.type
                     });
                 }
             })
@@ -255,6 +282,7 @@ export default {
             }
         },
         drugOk(val) {
+            console.log(val)
             let [arr, arr2] = [[], []];
             this.pwjj.forEach((item, index) => {
                 item.forEach((itemO, indexO) => {
@@ -351,7 +379,7 @@ export default {
             this.toast = true
             this.toastMsg = msg
             if (this.toastTimer) clearTimeout(this.toastTimer)
-            this.toastTimer = setTimeout(() => { this.toast = false }, 2000)
+            this.toastTimer = setTimeout(() => { this.toast = false }, 200000)
         },
         hideToast() {
             this.toast = false
@@ -402,6 +430,7 @@ export default {
             }
         },
         inputNumOk() {
+            console.log(this.drugNameOks)
             this.onScrollTop();
             if (this.numOklActive) {
                 let idArr = [];//新数组保存id
@@ -414,7 +443,7 @@ export default {
                         drugName: this.drugNameOks.drugName,
                         num: this.drugunitNum,
                         unit: this.drugNameOks.unit,
-                        type: '',
+                        type: this.drugNameOks.type,
                         drug_id: this.drugNameOks.drug_id,
                         is_abnormal: this.is_abnormal,
                         max: this.drugNameOks.max,
@@ -439,15 +468,20 @@ export default {
 
         // 打开选择煎法弹出
         chooseType(index, val) {
-            this.choosetype = true
-            this.clickIndex = index;
-            // 当前是什么煎法，打开选择煎法弹窗时，什么煎法就高亮
-            let x = this.typeLists.indexOf(val);
-            console.log(x)
-            if (x == -1) {
-                this.typeactive = 0;
+            if (this.type == 2) {
+                console.log("颗粒剂没有煎法")
             } else {
-                this.typeactive = x;
+
+                this.choosetype = true
+                this.clickIndex = index;
+                // 当前是什么煎法，打开选择煎法弹窗时，什么煎法就高亮
+                let x = this.typeLists.indexOf(val);
+                console.log(x)
+                if (x == -1) {
+                    this.typeactive = 0;
+                } else {
+                    this.typeactive = x;
+                }
             }
         },
         // 选择煎法取消
@@ -467,9 +501,9 @@ export default {
         choosetypecloseqd() {
             this.choosetype = false
             if (this.typeactive == 0) {
-                this.drugNameOkLists[this.clickIndex].type = ''
+                this.drugNameOkLists[this.clickIndex].proce_way = ''
             } else {
-                this.drugNameOkLists[this.clickIndex].type = this.typeLists[this.typeactive]
+                this.drugNameOkLists[this.clickIndex].proce_way = this.typeLists[this.typeactive]
             }
         },
         deletedrug(index) {
@@ -523,10 +557,11 @@ export default {
             param.append("supid", _this.supid)
             axios.post('?do=toLeadExp', param
             ).then((res) => {
+                console.log(res)
                 if (res.data.succ) {
                     let arr5 = [];
                     let dialogpwjjarrids = [];
-                    console.log(res)
+                    // console.log(res)
                     res.data.sec.forEach((item) => {
                         let [arr2, idArr] = [[], []];
 
@@ -553,6 +588,7 @@ export default {
                                 unit: item.unit,
                                 drug_id: item.drug_num,
                                 max: item.max,
+                                proce_way: item.proce_way
                                 // sprice:item.price,
                             })
                         } else {
@@ -580,11 +616,58 @@ export default {
             this.$refs.scrollTops.scrollTop = this.$refs.scrollTops.scrollHeight
         },
     },
+    created() {
+        console.log(this.datas2)
+
+    },
     mounted() {
         this.signCFFF();
+        let id = this.$route.query.id
+        console.log(id)
+        if (id) {
+            let params = {
+                orderId: id
+            }
+            axios.post('?do=historyOrderInfo', Qs.stringify(params))
+                .then((res) => {
+                    if (res.data.code == 1) {
+                        console.log(res.data)
+                        let druginfo = res.data.data.drugInfo;//药品列表
+
+
+                        let drugNameOkListsed = druginfo.map((item) => {
+                            return {
+                                drugName: item.drug_name,
+                                num: item.number,
+                                sprice: item.unit_price,
+                                unit: item.unit,
+                                drug_id: item.drug_code,
+                                max: item.max,
+                                is_abnormal: item.is_abnormal,
+                                proce_way: item.proce_way
+                            }
+                        })
+                        this.drugNameOkLists = drugNameOkListsed
+
+
+                    } else {
+                        this.showToast(res.data.msg);
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+            // setTimeout(() => {
+            //     console.log(this.datas2)
+            //     this.drugNameOkLists = this.datas2
+            // }, 50)
+        } else {
+
+        }
     },
     updated() {
         this.onScrollTop();
+
     },
     computed: {
         ...mapState({
@@ -593,6 +676,7 @@ export default {
             supid: state => state.defaults.supplier_id,
             pwjj: state => state.pwjj,
             repeatOrder: state => state.repeatOrder,
+            datas2: state => state.datas2,
         })
     }
 }
@@ -800,16 +884,26 @@ export default {
   justify-content: space-between;
 }
 
-.numOkl {
-  background: #ccc;
+.backspacech .numOkl {
+  background-color: #ccc;
   color: #fff;
   font-size: 22px;
 }
 
-.numOklActive {
-  background: red;
+.backspacech .numOklActive {
+  background-color: red;
 }
-
+#mutoast {
+  height: 39px;
+  width: 60%;
+  position: fixed;
+  left: 50%;
+  bottom: 50px;
+  margin-left: -30%;
+  line-height: 39px;
+  background-color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
 .mu-toast {
   height: 39px;
   width: 60%;

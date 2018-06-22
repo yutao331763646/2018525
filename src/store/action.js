@@ -34,15 +34,16 @@ export default {
     pharmavyData({
         commit
     }, {type, sid, give_type}) {
-        console.log()
         commit('TYPE', type)
         let param = {
             'type': type,
             'supId': sid
         }
+       
         axios
             .get('?do=getSupByTYPE', {params: param})
             .then((res) => {
+                // console.log(res)
                 if (res.data.code == 1) {
 
                     if (res.data.msg == "拍照方") {
@@ -69,6 +70,7 @@ export default {
                         if (sid) {
                             // 如果是重方复方 设置原始方的高亮和选择
                             let index = keys.indexOf(give_type)
+                            // console.log(index)
                             commit('TYPE_INDEX', {
                                 a: index,
                                 b: arr[index]

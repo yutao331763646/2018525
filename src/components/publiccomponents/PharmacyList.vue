@@ -35,7 +35,7 @@ export default {
 .pharmacylist {
   margin: 0 auto;
 //   margin-top: 10px;
- padding: 0px 0 0 30px;
+ padding: 0px 0 10px 0px;
     display: flex;
 //   border: 1px solid #ccc;
   width: 95%;

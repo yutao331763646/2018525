@@ -104,7 +104,7 @@
     padding-top: 12px;
 }
 
-.mulist {
+.mudrawer .mulist {
     padding-left: 20px;
     padding-right: 20px
 }
@@ -231,7 +231,8 @@
 .mu-dialog{
     width: 92%;
 }
- .exp{
+
+ #exp{
     margin-right: 10px;
     margin-top: 10px;
 }
@@ -265,4 +266,14 @@
 .hiddenClass{
     height: 0;
     overflow: hidden
+}
+#mutoast{
+    height: 39px;
+    width: 60%;
+    left: 50%;
+    bottom: 50px;
+    margin-left: -30%;
+    line-height: 39px;
+    background-color: rgba(0,0,0,.6);
+    text-align: center;
 }
