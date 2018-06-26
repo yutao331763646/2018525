@@ -97,17 +97,22 @@ export default {
         signCFFF() {
             if (!this.repeatOrder.data) {
                 this.pharmavyData({ type: 1, sid: '' });
-                console.log("正常流程")
+                // console.log("正常流程")
             } else {
                 this.historystore = false
-                console.log("重方")
-                // this.pharmavyData({
-                //     type: this.repeatOrder.data.orderInfo.drug_type,
-                //     sid: this.repeatOrder.data.orderInfo.supplier_id,
-                //     give_type: this.repeatOrder.data.orderInfo.give_type
-                // })
-                console.log(this.repeatOrder)
-                console.log(this.defaultsed)
+                // console.log("重方")
+                this.pharmavyData({
+                    type: this.repeatOrder.data.orderInfo.drug_type,
+                    sid: this.repeatOrder.data.orderInfo.supplier_id,
+                    give_type: this.repeatOrder.data.orderInfo.give_type
+                })
+
+                
+                this.types=this.repeatOrder.data.orderInfo.drug_type
+                this.peisonged=this.repeatOrder.data.orderInfo.give_type
+                // console.log(this.repeatOrder)
+                // console.log(this.defaultsed)
+                // console.log(this.repeatOrder.data.orderInfo.drug_type)
 
             }
 
@@ -161,7 +166,7 @@ export default {
             } else {
                 axios.post('?do=beforePrescribe', Qs.stringify(params2))
                     .then((res) => {
-                        console.log(res.data)
+                        // console.log(res.data)
                         if (res.data.code == 1) {
                             this.$router.push({ path: '/propsal' })
                         } else {
@@ -174,9 +179,9 @@ export default {
             }
         },
         toggle() {
-            console.log("获取用户的历史订单")
+            // console.log("获取用户的历史订单")
             let _this = this;
-            axios.get('?do=getUserOrderInfo&uid=1447329')
+            axios.get('?do=getUserOrderInfo')
                 .then((res) => {
                     console.log(res)
                     if (res.data.code == 1) {
@@ -219,9 +224,9 @@ export default {
                 });
         },
         pinkageSupzet(bool) {
-            console.log(bool)
+            // console.log(bool)
             this.pinkageSupz = bool
-            console.log("是否显示" + this.pinkageSupz)
+            // console.log("是否显示" + this.pinkageSupz)
         },
         // serviceTypeto(item) {
         //     this.$emit('serviceTypee',item)

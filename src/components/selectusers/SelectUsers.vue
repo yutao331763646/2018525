@@ -113,25 +113,24 @@ export default {
 
         signCFFF() {
             let params = {
-                // "test": 1
+                // "test": 2
             }
             axios.post('?do=repeatOrder', Qs.stringify(params))
                 .then((res) => {
                     if (res.data.code) {
-                        console.log(res.data)
+                        // console.log(res)
                         this.repeatOrder(res.data)
                         // console.log(res.data.data)
                         // 重方：为原用户提供相同的用药建议，所有的信息都有（病症，用药时间，医嘱）
                         // 复方：为新用户提供相同的用药建议，除了用户信息，其他信息都有
                         // 如果有用户信息  为重方
                         if (res.data.cfORff == "cf") {
-                            console.log("重方")
+                            // console.log("重方")
                             this.pharmavyData({
                                 type: res.data.data.orderInfo.drug_type,
                                 sid: res.data.data.orderInfo.supplier_id,
                                 give_type: res.data.data.orderInfo.give_type
                             })
-                            // console.log(res.data.data.userInfo)
                             let orther = res.data.data.userInfo.orther;
                             this.searcjs = true;
                             this.userLists = orther;//渲染所有数据
@@ -141,7 +140,6 @@ export default {
                                 return item.usename;
                             });
                             let len = ortherUserName.indexOf(defaultUserName);
-                            console.log(len)
                             this.active = len;
                             // 设置一些初始化的默认值
                             this.userNum = orther[len].mobile;
@@ -149,11 +147,16 @@ export default {
 
 
                         } else {
-                            console.log("复方")
+                            // console.log("复方")
+                             this.pharmavyData({
+                                type: res.data.data.orderInfo.drug_type,
+                                sid: res.data.data.orderInfo.supplier_id,
+                                give_type: res.data.data.orderInfo.give_type
+                            })
                         }
                         // console.log("重方复方")
                     } else {
-                        console.log("正常开方，不作特殊操作")
+                        // console.log("正常开方，不作特殊操作")
                     }
                 })
                 .catch((err) => {
@@ -174,7 +177,7 @@ export default {
                 axios.post('?do=searchuser',
                     param
                 ).then((res) => {
-                    console.log(res.data)
+                    // console.log(res.data)
                     if (res.data.succ) {
 
                         _this.userLists = res.data.sec;
@@ -199,7 +202,7 @@ export default {
             this.uid = ''
         },
         chooseData(val) {
-            console.log(val)
+            // console.log(val)
         },
         nextStep() {
             let _this = this,
@@ -231,7 +234,7 @@ export default {
                     } else {
                         if (!this.users.usename) {
                             //没有点击，选择默认第一个
-                            console.log(this.userLists)
+                            // console.log(this.userLists)
                             this.userinfo({
                                 username: this.userLists[0].usename,
                                 age: this.userLists[0].age,
@@ -255,9 +258,9 @@ export default {
             })
             setTimeout(() => {
 
-                console.log(this.userinfos)
+                // console.log(this.userinfos)
             }, 100)
-            console.log(this.userLists)
+            // console.log(this.userLists)
         },
         showToast(msg) {
             this.toast = true
@@ -280,7 +283,6 @@ export default {
         this.signCFFF();
         let height = window.screen.height;
         this.height = height;
-        console.log(height)
 
     },
     computed: {
@@ -291,8 +293,8 @@ export default {
 }
 </script>
 <style  lang="less">
-.selectusers{
-    background: #f8f8f8
+.selectusers {
+  background: #f8f8f8;
 }
 .search .mu-text-field-content {
   margin-top: 12px !important;
@@ -363,7 +365,7 @@ export default {
   .search {
     padding: 0 20px;
     height: 47px;
-    background:#fff
+    background: #fff;
   }
 
   .mu-raised-button {

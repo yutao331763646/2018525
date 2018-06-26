@@ -1,6 +1,12 @@
 <template>
     <div class="addgrugs">
         <mu-appbar title="添加方案">
+            <!-- <mu-content-block>
+                点击药材名称
+            </mu-content-block> -->
+            <mu-content-block  v-if="updklj">
+                <marquee behavior="scroll" class="marqueetedt">点击药材名称可设置先煎、后下、烊化等</marquee>
+            </mu-content-block>
             <mu-flat-button slot="left" label="常用方" color="white" @click="storeChang()" />
             <mu-dialog :open="dialogexplist" @close="closeexplist" title="请选择常用方" scrollable>
                 <mu-menu>
@@ -182,6 +188,7 @@ export default {
             valafterpwjj: {},//点击药品之后 把值存到这里  再根据弹出的选择确定要不要
             dialogpwjj2: false,//到经验方时的配伍禁忌提醒
             dialogpwjj2val: [],//到经验方时的配伍禁忌提醒内容
+              updklj:true
 
 
         }
@@ -617,13 +624,16 @@ export default {
         },
     },
     created() {
-        console.log(this.datas2)
+        // console.log(this.datas2)
 
     },
     mounted() {
+         if(this.type==2){
+               this.updklj=false
+          }
         this.signCFFF();
         let id = this.$route.query.id
-        console.log(id)
+        // console.log(id)
         if (id) {
             let params = {
                 orderId: id
@@ -918,5 +928,9 @@ export default {
 
 .mu-dialog .mu-dialog-title {
   padding: 10px 15px 10px;
+}
+.marqueetedt{
+    font-size: 14px;
+    padding: 0 20px
 }
 </style>

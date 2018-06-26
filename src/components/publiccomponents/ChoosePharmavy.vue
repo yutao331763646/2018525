@@ -3,6 +3,7 @@
         <!-- 推荐药房的弹出 -->
         <mu-flexbox class="disease_name proposal " orient="horizontal" v-if="tuishow">
             <mu-content-block>推荐药房</mu-content-block>
+
             <mu-raised-button class="demo-raised-button" label="推荐其他药房" @click="openpopup('bottom')" />
         </mu-flexbox>
         <!--非弹出层 的默认选中药房 -->
@@ -25,7 +26,7 @@
             </mu-flexbox>
             <mu-list>
                 <!-- 弹出层的药房 -->
-                <div v-for="(item,index) in pharmavyDatas.select[num]" :key="index"  :class="{acited:suindex==index}" class="pharmavyDataslist">
+                <div v-for="(item,index) in pharmavyDatas.select[num]" :key="index" :class="{acited:suindex==index}" class="pharmavyDataslist">
 
                     <!-- <mu-radio :nativeValue="item.name" :label="item.name" name="group" v-model="value" @click.native="choosePhar(index,item)"></mu-radio> -->
                     <pharmacylist :text="item" @click.native="choosePhar(index,item)" />
@@ -34,7 +35,7 @@
         </mu-popup>
         <!-- 非弹出层的默认配送方式 -->
         <mu-flexbox orient="horizontal" class="dis_type" v-if="tuishow" wrap="wrap">
-            <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item.name" :secondary="index==typeacti" @click.native="chooseType(index,item)" />
+            <mu-raised-button v-for="(item,index) in serviceArrDefault" :key="index" :label="item.name" :secondary="index==typeactidata" @click.native="chooseType(index,item)" />
         </mu-flexbox>
         <mu-toast v-if="toast" message="当前用药类型没有推荐药房" />
         <mu-toast v-if="toast2" message="请选择一个供应商" />
@@ -72,7 +73,7 @@ export default {
                 '1': ['000000', '159101', '059102'],
                 '2': ['059107']
             },//满减活动的供应商id
-            typeacti: 0,
+            // typeacti: 0,
             suindex: 0,
             connt: 0,//用来记录用户是否手动点击选中供应商，没有点击的话就默认第一个
         }
@@ -80,14 +81,20 @@ export default {
     methods: {
         signCFFF() {
             if (!this.repeatOrder.data) {
-                console.log("正常流程")
+                // console.log("正常流程")
             } else {
                 let give_type = this.repeatOrder.data.orderInfo.give_type;
                 let keyArr = Object.keys(this.defaults.serviceArr)
                 let len = keyArr.indexOf(give_type)
-                console.log(this.defaults)
-                console.log("chongfang" + len)
-                this.typeacti = len
+                // console.log(this.defaults)
+                // console.log("chongfang" + len)
+                // console.log("又进入这个页面了   " + this.typeactidata)
+                this.typeacti(len)
+                // console.log("又进入222这个页面了   " + this.typeactidata)
+                // console.log(this.serviceType)
+                let len2 = keyArr.indexOf(this.serviceType.type)
+                // console.log(len2)
+                this.typeacti(len2)
             }
         },
         openpopup(position) {
@@ -99,9 +106,19 @@ export default {
             // 先判断是否重方复方
             if (!this.repeatOrder.data) {
                 // 再判断容器内是否有药，无药的话默认走上一步的选择类型请求供应商信息
-                console.log("=======================================================")
-                console.log(this.datas2)
+                // console.log(this.datas2)
+                // console.log("======================正常开方========")
                 if (this.datas2.length < 1) {
+                    // console.log("===============正常开方======无药====")
+                    let keys = Object.keys(this.pharmavyDatas.select);
+                    this.num = keys[0];//打开推荐其他药房时，默认选中第一个服务类型及当前类型下的供应商
+                    if (keys) {
+                        keys.forEach((item, index) => {
+                            this.servers.push({ name: this.server[item], type: item })
+                        })
+                    } else {
+                        console.log("无数据")
+                    }
                     this.pharmavyData({ type: this.type, sid: '', give_type: '' })
                 } else {
                     // 有药的话  用容器内的药品去拉新的供应商信息
@@ -111,14 +128,22 @@ export default {
                     }
                     axios.post('?do=selectSup', Qs.stringify(data))
                         .then((res) => {
-                            console.log()
-                            console.log(res)
+                            // console.log("==============正常开方=======有药===+===============================")
+                            // console.log(res)
                             this.pharmavyDatass(res.data.data);
-
+                            // console.log(this.pharmavyDatas.select)
                             let keyArr = Object.keys(this.pharmavyDatas.select)
                             let len = keyArr.indexOf(this.serviceType.type)
                             this.typeindex2 = len
                             this.num = keyArr[len]
+                            // console.log(keyArr)
+                            if (keyArr) {
+                                keyArr.forEach((item, index) => {
+                                    this.servers.push({ name: this.server[item], type: item })
+                                })
+                            } else {
+                                console.log("无数据")
+                            }
 
                         })
                         .catch((err) => {
@@ -126,9 +151,10 @@ export default {
                         });
                 }
             } else {
-                console.log("重方")
-                console.log(this.datas2)
+                // console.log("====================重方")
+                // console.log(this.datas2)
                 if (this.datas2.length < 1) {
+                    // console.log("====================重方无药")
 
                     this.pharmavyData({
                         type: this.repeatOrder.data.orderInfo.drug_type,
@@ -141,7 +167,8 @@ export default {
                     }
                     axios.post('?do=selectSup', Qs.stringify(data))
                         .then((res) => {
-                            console.log(res)
+                            // console.log("==================重方有药---========================================")
+                            // console.log(res)
                             this.pharmavyDatass(res.data.data);
 
                             let keyArr = Object.keys(this.pharmavyDatas.select)
@@ -149,27 +176,26 @@ export default {
                             this.typeindex2 = len
                             this.num = keyArr[len]
 
+
                         })
                         .catch((err) => {
                             console.log(err);
                         });
                 }
+
+                let keys = Object.keys(this.pharmavyDatas.select);
+                let len = keys.indexOf(this.serviceType.type)
+                this.typeindex2 = len
+                this.num = keys[0];//打开推荐其他药房时，默认选中第一个服务类型及当前类型下的供应商
+                // console.log(keys);
+                if (keys) {
+                    keys.forEach((item, index) => {
+                        this.servers.push({ name: this.server[item], type: item })
+                    })
+                } else {
+                    console.log("无数据")
+                }
             }
-
-            let keys = Object.keys(this.pharmavyDatas.select);
-            this.num = keys[0];//打开推荐其他药房时，默认选中第一个服务类型及当前类型下的供应商
-            // console.log(keys);
-
-            if (keys) {
-                keys.forEach((item, index) => {
-                    this.servers.push({ name: this.server[item], type: item })
-                })
-            } else {
-                console.log("无数据")
-            }
-
-
-
         },
         // 取消选择其他药房
         closepopup(position) {
@@ -178,15 +204,12 @@ export default {
         },
         //保存选择的药房
         storePhar(position) {
-
-            console.log("shifoudianjil" + this.connt)
-            console.log(this.pharmavyDatas.select[this.num])
             if (!this.connt) {
 
                 this.toast2 = true
                 if (this.toastTimer) clearTimeout(this.toastTimer)
                 this.toastTimer = setTimeout(() => { this.toast2 = false }, 2000)
-                console.log("请选择一个供应商")
+                // console.log("请选择一个供应商")
             } else {
 
                 this[position + 'Popup'] = false;
@@ -219,7 +242,7 @@ export default {
             // 被点击的服务类型的id在默认配送方式的的索引，让他高亮
             let keyArr = Object.keys(this.defaults.serviceArr)
             let len = keyArr.indexOf(item.type)
-            this.typeacti = len
+            this.typeacti(len)
             this.$emit('peisong', item.type)
             this.typeindex({ a: index, b: item })
 
@@ -227,26 +250,31 @@ export default {
         choosePhar(index, item) {
             this.connt += 1;
             this.changedefaults(item)
-            console.log(item)
-            console.log("选择供应商")
-            console.log(this.serviceType)
-            console.log(this.defaults.serviceArr)
+            // console.log(item)
+            // console.log("选择供应商")
+            // console.log(this.serviceType)
+            // console.log(this.defaults.serviceArr)
             this.suindex = index;
             let keyArr = Object.keys(this.defaults.serviceArr)
             let len = keyArr.indexOf(this.num)
-            console.log(len)
-            this.typeacti = len
+            this.typeindex2 = len;
+            // console.log(len)
+            this.typeacti(len)
+            // console.log("选择供应商时的配送方式   " + this.typeactidata)
         },
         chooseType(index, item) {
-            this.typeacti = index;
+            this.typeacti(index)
+            // console.log(this.typeactidata + "    点击非弹出层的配送方式时")
             this.$emit('peisong', item.type)
             this.typeindex({ a: index, b: item })
         },
+
         ...mapActions([
             'changedefaults',
             'typeindex',
             'pharmavyDatass',
             'pharmavyData',
+            'typeacti'
         ]),
     },
     created() {
@@ -256,11 +284,13 @@ export default {
     },
     mounted() {
         this.signCFFF();
+        // console.log(this.typeactidata)
+        // console.log(this.defaults)
     },
     beforeUpdate() {
     },
     updated() {
-
+        // console.log("更新就打印this.serviceType.type   " + this.serviceType.type)
     },
     components: {
         pharmacylist,
@@ -279,6 +309,7 @@ export default {
             repeatOrder: state => state.repeatOrder,
             serviceType: state => state.serviceType,
             repeatOrder: state => state.repeatOrder,
+            typeactidata: state => state.typeacti
 
         }),
         serviceArrDefault() {

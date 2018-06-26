@@ -75,6 +75,7 @@ const state = {
     pwjj: ['dd'], //获取所有的配伍禁忌数组
     pwjjarr: [], //要传给后台的配伍禁忌数组
     repeatOrder:{},//重方复方的数据
+    typeacti:0
 }
 const getters = {
     showLoading(state) {

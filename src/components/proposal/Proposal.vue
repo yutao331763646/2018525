@@ -30,11 +30,15 @@
                 <!-- 方案补充收费 -->
                 <mu-flexbox class="f_nob proposal" orient="horizontal" @click.native="dialog3 = true">
                     <mu-content-block>方案补充收费</mu-content-block>
-                    <mu-raised-button class="demo-raised-button" :label="'￥'+price" labelPosition="before" icon="keyboard_arrow_right" />
+                    <mu-raised-button class="demo-raised-button" :label="'￥'+Number(price)" labelPosition="before" icon="keyboard_arrow_right" />
                     <mu-dialog :open="dialog3" title="方案补充收费">
                         <mu-list>
                             <mu-raised-button v-for="(item,index) in fees" :key="index" :label="item" class="zdypr" :secondary="feeindex==index" @click="chooseonly(index,item)" />
-                            <mu-text-field min="0" v-model="zidingyipr" hintText="请输入自定义金额" type="number" class="zidingyi" @input="zidingyi" />
+                            <!-- <mu-text-field min="0" v-model="zidingyipr" hintText="请输入自定义金额" type="number" class="zidingyi" @input="zidingyi" /> -->
+                            <div class="zidingyi_wrap">
+                                
+                                <input type="number" v-model="zidingyipr" placeholder="请输入自定义金额" class="zidingyi" @input="zidingyi">
+                                </div>
                         </mu-list>
                         <mu-flat-button slot="actions" primary label="确定" @click="closefnob" />
                     </mu-dialog>
@@ -84,7 +88,7 @@
                     <mu-flexbox class="yongfa">
                         <mu-content-block>用法： </mu-content-block>
                         <mu-raised-button label="内服" :secondary="yongfa==0" @click="yongfac(0)" />
-                        <mu-raised-button label="外用" :secondary="yongfa==1" @click="yongfac(1)" />
+                        <mu-raised-button label="外用" v-if="updklj" :secondary="yongfa==1" @click="yongfac(1)" />
                     </mu-flexbox>
                     <mu-divider/>
 
@@ -342,6 +346,7 @@ export default {
             subtrac99: 0,//满减优惠
             g_m: 0,//代送费
             fanganType: '中药饮片',//拍照方的用药类型
+            updklj:true
         }
     },
     filters: {
@@ -352,11 +357,11 @@ export default {
     methods: {
         signCFFF() {
             if (!this.repeatOrder.data) {
-                console.log("正常流程")
+                // console.log("正常流程")
             } else {
-                console.log("===========重方")
-                console.log(this.repeatOrder)
-                console.log(this.defaults)
+                // console.log("===========重方")
+                // console.log(this.repeatOrder)
+                // console.log(this.defaults)
                 let order = this.repeatOrder.data.orderInfo;
                 let druginfo = this.repeatOrder.data.drugInfo;//药品列表
 
@@ -371,7 +376,7 @@ export default {
                     give_money = order.give_money,//配送费
                     taboo = order.taboo;//忌口与禁忌  
                 this.advise = order.advise;//其他医嘱  备注
-                console.log("是否可见" + order.give_type)
+                // console.log("是否可见" + order.give_type)
 
                 let jjj = taboo.split(',');
                 let indexs = [];
@@ -449,15 +454,22 @@ export default {
             }
         },
         handlechange1(val) {
-            console.log(val)
-            console.log("handlechange1")
+            // console.log(val)
+            // console.log("handlechange1")
         },
         handleChange(val) {
             this.bottomNav = val;
         },
         chooseonlyType(item) {
+          
+            console.log(item)
             this.fanganType = item;
-            this.dialog4 = false
+            this.dialog4 = false;
+            if(item=="颗粒剂"){
+                this.updklj=false
+            }else{
+                this.updklj=true
+            }
         },
         //  方案补充收费弹窗
         closefnob() {
@@ -466,21 +478,28 @@ export default {
         },
         //  方案补充收费的选择
         chooseonly(index, item) {
-            console.log(item)
+            // console.log(item)
+            if(item=="免费"){
+                this.price=0
+            }else{
+
             this.price = item.replace('￥', '');
+            }
             this.feeindex = index;
             this.zidingyipr = '';
             // this.dialog3 = false
         },
-        zidingyi(newVal) {
-            if (newVal > 0) {
-                console.log(newVal)
+        zidingyi(e) {
+            let newValed=e.target.value
+            console.log(newValed)
+            if (newValed >= 0) {
+                console.log(newValed)
                 this.feeindex = 999;
                 this.price = this.zidingyipr;
-            } else if (newVal < 0) {
+            } else if (newValed < 0) {
                 this.zidingyipr = '';
                 this.showToast("金额不能小于0");
-                console.log(this.zidingyipr)
+                // console.log(this.zidingyipr)
             }
         },
         picker() {
@@ -594,9 +613,7 @@ export default {
             arrCh.forEach((item, index) => {
                 if (arrCh[index] != -1) {// 如果是用户输入的是中文 
                     arrFinal.push({ name: this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""), id: this.diseaseDatas[index].id })
-                    // arrFinal.push(this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""));
                 } else if (arrEn[index] != -1) {//如果用户输入的是英文
-                    // arrFinal.push(this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""));
                     arrFinal.push({ name: this.diseaseDatas[index].name.replace(/(^[\s\n\t]+|[\s\n\t]+$)/g, ""), id: this.diseaseDatas[index].id })
                 }
             })
@@ -622,17 +639,13 @@ export default {
         },
         // 打开输入药品弹窗时 获取配伍禁忌列表和药品列表
         openDrawerFang1() {
-
-
             this.hiddenClass = true;
             this.getAllpwjj();
             let _this = this,
                 param = new FormData();
             param.append('sId', this.sid);
-            // param.append('type', this.type);
             axios.post('?do=getDrugBySup', param)
                 .then((res) => {
-                    // console.log(res)
                     if (res.data.code == 1) {
                         this.$store.dispatch('istrue', true);
                         this.drugsData(res.data.data)
@@ -648,7 +661,7 @@ export default {
             this.toast = true
             this.toastMsg = msg
             if (this.toastTimer) clearTimeout(this.toastTimer)
-            this.toastTimer = setTimeout(() => { this.toast = false }, 200000)
+            this.toastTimer = setTimeout(() => { this.toast = false }, 2000)
         },
         hideToast() {
             this.toast = false
@@ -677,7 +690,7 @@ export default {
         },
         closedialogStoreJyY() {
             if (!this.n) {
-                console.log("kong")
+                // console.log("kong")
                 this.$refs.expnameinput.focus()
             } else {
                 this.storeExpS();
@@ -754,6 +767,7 @@ export default {
             let _this = this;
             axios.post('?do=pinkageSup'
             ).then((res) => {
+                // console.log(res)
                 _this.pinkageSups = res.data;
 
             }).catch((err) => {
@@ -793,9 +807,9 @@ export default {
         },
 
         pinkageSupzet(bool) {
-            console.log(bool)
+            // console.log(bool)
             this.pinkageSupz = bool
-            console.log("是否显示" + this.pinkageSupz)
+            // console.log("是否显示" + this.pinkageSupz)
         },
         add_img(e) {
             let file = e.target.files[0];
@@ -865,6 +879,7 @@ export default {
             }
         },
         submissions() {
+            console.log(this.serviceType.type)
             let disease = this.actives.join(","),
                 useage = this.data1num + "," + this.data2num + "," + this.data3num + "," + this.data4num
 
@@ -883,7 +898,7 @@ export default {
             this.datas2.forEach((item) => {
                 drugArr.push({ "code": item.drug_id, "num": item.num, "proceway": item.proce_way, "unit": item.unit })
                 if (item.max != 0 && item.num > item.max) {
-                    console.log("超量")
+                    // console.log("超量")
                     drugCL.push({ "code": item.drug_id, "max": item.max })
                 }
             })
@@ -919,7 +934,7 @@ export default {
                         'eat_time': this.eat_time,//ok
                         'method_out': this.method_out,//ok
                         'is_show': this.is_show,//ok
-                        'peisong': this.peisonged,//ok
+                        'peisong': this.serviceType.type,//ok
                         'su_id': this.sid,//ok
                         'd_m': (this.totalPriceDan * this.data1num).toFixed(2),//ok
                         'p_m': this.decoctings,//ok
@@ -941,12 +956,7 @@ export default {
                         // 'isTest': 'isTest'
                     }
             }
-            console.log(this.defaults.serviceArr)
-            console.log(this.serviceType)
-            console.log(params)
-            // if (this.type == -1) {
-            //    let drug_type = this.fanganType
-            // }
+
             let drug_type = 1;
             if (this.fanganType == "中药饮片") {
                 drug_type = 1;
@@ -966,16 +976,16 @@ export default {
                 "use_type": this.yongfa,//ok
                 "method_out": this.method_out,//ok
                 "supid": this.sid,//ok
-                "service": this.peisonged,//ok
+                "service":this.serviceType.type,//ok
 
 
 
             }
             if (this.type == -1) {
-                console.log("paiza a a  a a ")
+                // console.log("paiza a a  a a ")
                 axios.post('?do=KFPicturesPrescribe', Qs.stringify(params2))
                     .then((res) => {
-                        console.log(res.data)
+                        // console.log(res.data)
                         if (res.data.code) {
                             window.location.href = res.data.url
                         } else {
@@ -989,7 +999,7 @@ export default {
 
                 axios.post('?do=KFprescribe', Qs.stringify(params))
                     .then((res) => {
-                        console.log(res.data)
+                        // console.log(res.data)
                         this.ispinkageSupz()
                         if (res.data.code) {
                             this.showToast(res.data.msg)
@@ -1006,9 +1016,9 @@ export default {
             }
         },
         getHistoryOrderInfo() {
-            console.log("getHistoryOrderInfo")
+            // console.log("getHistoryOrderInfo")
             let id = this.$route.query.id
-            console.log(id)
+            // console.log(id)
             if (id) {
                 let params = {
                     orderId: id
@@ -1129,6 +1139,11 @@ export default {
     },
 
     mounted() {
+        //   console.log("dddddddddddd"+this.type)
+
+          if(this.type==2){
+               this.updklj=false
+          }
         this.addTabooas();
         let keyArr = Object.keys(this.defaults.serviceArr)
         this.peisonged = keyArr[0]
@@ -1141,18 +1156,6 @@ export default {
         this.ispinkageSupz();
         this.gm();
 
-        //  console.log("单贴费用")
-        // console.log(this.defaults)
-        // this.totalPriceDan()
-        // console.log("===================================")
-        // console.log("满减"+Number(this.subtrac99))
-        // console.log("诊费"+Number(this.price))
-        // console.log("药品总价"+Number(this.totalPriceDan * this.data1num))
-        // console.log("代煎费  " +  Number(this.decoctings))
-        // console.log("代送费"+Number(this.defaults.serviceArr[this.serviceType.type].give_money))
-        // console.log("加工费"+Number(this.defaults.serviceArr[this.serviceType.type].serve_money))
-        // console.log("总价"+(Number(this.price) + Number(this.totalPriceDan * this.data1num) + Number(this.decoctings) + Number(this.defaults.serviceArr[this.serviceType.type].give_money) - Number(this.subtrac99) + Number(this.sup_discounts) + Number(this.defaults.serviceArr[this.serviceType.type].serve_money)).toFixed(2))
-        // console.log("总价" + this.totalprice)
     },
     computed: {
         // 全局共享的数据
@@ -1180,7 +1183,7 @@ export default {
         },
         // 单贴药品费用
         totalPriceDan() {
-            // console.log("======================================")
+            // console.log("====yu==================================")
             // console.log(this.defaults)
             // let isTrue = this.pharmavyDatas.select;
             // let x = []
@@ -1189,10 +1192,8 @@ export default {
             // }
             // console.log('total' in x[0])
             let bool = 'total' in this.defaults
-            // let bool = 'total' in  x[0]
 
             if (bool) {
-                console.log(this.defaults.total)
                 return this.defaults.total
                 // console.log("带价格的供应商")
 

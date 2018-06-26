@@ -16,7 +16,8 @@ import {
     PWJJARR,
     PHARMAVT_DATAAFTER,
     USERINFO,
-    TEPEATORDER
+    TEPEATORDER,
+    TYPEACTI
 } from './mutation-types.js'
 import axios from "axios";
 import Qs from 'qs'
@@ -75,6 +76,9 @@ export default {
                                 a: index,
                                 b: arr[index]
                             })
+
+
+                            
                         } else {
                             // 否则默认当前用药类型的第一个
                             commit('TYPE_INDEX', {
@@ -158,5 +162,10 @@ export default {
         commit
     }, data) => {
         commit('TEPEATORDER', data)
+    },
+    typeacti:({
+        commit
+    }, data)=>{
+        commit('TYPEACTI', data)
     }
 }

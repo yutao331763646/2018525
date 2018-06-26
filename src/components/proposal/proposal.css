@@ -259,9 +259,14 @@
 .addimg .mu-flat-button-label{
     padding-top: 30px;
 }
-
-.zidingyi .mu-text-field-input{
+.zidingyi_wrap{
+    height: 30px;
+    ;
     border-bottom: 1px solid #ccc;
+}
+.zidingyi {
+    display: block;
+    outline:none;
 }
 .hiddenClass{
     height: 0;

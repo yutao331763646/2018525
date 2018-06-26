@@ -16,7 +16,8 @@ import {
     PWJJARR,
     PHARMAVT_DATAAFTER,
     USERINFO,
-    TEPEATORDER
+    TEPEATORDER,
+    TYPEACTI
 } from './mutation-types.js'
 export default {
     ADD_DATAS(state, datas) {
@@ -84,5 +85,8 @@ export default {
     },
     TEPEATORDER(state, data){
         state.repeatOrder = data
+    },
+    TYPEACTI(state, data){
+        state.typeacti = data
     }
 }
